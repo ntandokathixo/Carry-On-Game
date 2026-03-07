@@ -314,6 +314,7 @@ GameObject:
   m_Component:
   - component: {fileID: 222485412}
   - component: {fileID: 222485413}
+  - component: {fileID: 222485414}
   m_Layer: 0
   m_Name: Car3
   m_TagString: Untagged
@@ -391,6 +392,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &222485414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 222485411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 226780808db05614a83cf088d950a271, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  carouselColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &236327100
 GameObject:
   m_ObjectHideFlags: 0
@@ -448,6 +462,7 @@ GameObject:
   m_Component:
   - component: {fileID: 259964005}
   - component: {fileID: 259964006}
+  - component: {fileID: 259964007}
   m_Layer: 0
   m_Name: Car5
   m_TagString: Untagged
@@ -525,6 +540,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &259964007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 259964004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 226780808db05614a83cf088d950a271, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  carouselColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &300288461
 GameObject:
   m_ObjectHideFlags: 0
@@ -984,6 +1012,7 @@ GameObject:
   m_Component:
   - component: {fileID: 579824344}
   - component: {fileID: 579824345}
+  - component: {fileID: 579824346}
   m_Layer: 0
   m_Name: Car8
   m_TagString: Untagged
@@ -1061,6 +1090,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &579824346
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 579824343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 226780808db05614a83cf088d950a271, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  carouselColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &616838448
 GameObject:
   m_ObjectHideFlags: 0
@@ -1281,6 +1323,7 @@ GameObject:
   m_Component:
   - component: {fileID: 922469626}
   - component: {fileID: 922469627}
+  - component: {fileID: 922469628}
   m_Layer: 0
   m_Name: Car1
   m_TagString: Untagged
@@ -1358,6 +1401,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &922469628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 922469625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 226780808db05614a83cf088d950a271, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  carouselColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &996308561
 GameObject:
   m_ObjectHideFlags: 0
@@ -1647,6 +1703,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1276959875}
   - component: {fileID: 1276959876}
+  - component: {fileID: 1276959877}
   m_Layer: 0
   m_Name: Car2
   m_TagString: Untagged
@@ -1724,6 +1781,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1276959877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1276959874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 226780808db05614a83cf088d950a271, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  carouselColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &1282470237
 GameObject:
   m_ObjectHideFlags: 0
@@ -1821,6 +1891,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1309871388}
   - component: {fileID: 1309871389}
+  - component: {fileID: 1309871390}
   m_Layer: 0
   m_Name: Car9
   m_TagString: Untagged
@@ -1898,6 +1969,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1309871390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1309871387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 226780808db05614a83cf088d950a271, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  carouselColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &1451140750
 GameObject:
   m_ObjectHideFlags: 0
@@ -1908,6 +1992,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1451140751}
   - component: {fileID: 1451140752}
+  - component: {fileID: 1451140753}
   m_Layer: 0
   m_Name: Car4
   m_TagString: Untagged
@@ -1985,6 +2070,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1451140753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1451140750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 226780808db05614a83cf088d950a271, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  carouselColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &1498614144
 GameObject:
   m_ObjectHideFlags: 0
@@ -1995,6 +2093,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1498614145}
   - component: {fileID: 1498614146}
+  - component: {fileID: 1498614147}
   m_Layer: 0
   m_Name: Car6
   m_TagString: Untagged
@@ -2072,6 +2171,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1498614147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1498614144}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 226780808db05614a83cf088d950a271, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  carouselColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &1555129770
 GameObject:
   m_ObjectHideFlags: 0
@@ -3146,6 +3258,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2078539891}
   - component: {fileID: 2078539892}
+  - component: {fileID: 2078539893}
   m_Layer: 0
   m_Name: Car7
   m_TagString: Untagged
@@ -3223,6 +3336,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &2078539893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2078539890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 226780808db05614a83cf088d950a271, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  carouselColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

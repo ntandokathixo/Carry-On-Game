@@ -41,13 +41,10 @@ public class BagMovement : MonoBehaviour
             }
             else
             {
-                // Reached a carousel - DESTROY the bag (no recycling visible)
-                Debug.Log(gameObject.name + " reached carousel - destroyed");
-
-                // Tell GameManager to add score (will implement next)
-                // FindObjectOfType<GameManager>().AddScore();
-
-                Destroy(gameObject);
+                // Reached a carousel - will be detected by CarouselColour script
+                // We don't destroy here anymore - let the trigger handle it
+                // But we stop moving
+                currentTarget = null;
             }
         }
     }
