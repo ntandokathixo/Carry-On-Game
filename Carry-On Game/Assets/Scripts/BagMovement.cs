@@ -2,13 +2,8 @@ using UnityEngine;
 
 public class BagMovement : MonoBehaviour
 {
-    public float speed = 0.7f;
-    public Transform currentTarget;  // Remove spawnPoint, keep currentTarget
-
-    void Start()
-    {
-        // Don't set currentTarget here anymore - SpawnManager will set it
-    }
+    public float speed = 3f;
+    public Transform currentTarget;
 
     void Update()
     {
@@ -46,8 +41,13 @@ public class BagMovement : MonoBehaviour
             }
             else
             {
-                // Reached a carousel
-                currentTarget = null;
+                // Reached a carousel - DESTROY the bag (no recycling visible)
+                Debug.Log(gameObject.name + " reached carousel - destroyed");
+
+                // Tell GameManager to add score (will implement next)
+                // FindObjectOfType<GameManager>().AddScore();
+
+                Destroy(gameObject);
             }
         }
     }
