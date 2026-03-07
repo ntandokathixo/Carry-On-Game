@@ -1,25 +1,15 @@
-using System.Security.Cryptography;
 using UnityEngine;
 
 public class BagMovement : MonoBehaviour
 {
-
-    public float speed = 6f;
-    public Transform currentTarget;
-    public Transform spawnPoint;
-
+    public float speed = 0.7f;
+    public Transform currentTarget;  // Remove spawnPoint, keep currentTarget
 
     void Start()
     {
-        if (spawnPoint != null)
-        {
-            currentTarget = spawnPoint;
-        }
-        else
-        {
-            Debug.LogError("Spawn Point not assigned on " + gameObject.name);
-        }
+        // Don't set currentTarget here anymore - SpawnManager will set it
     }
+
     void Update()
     {
         Move();
@@ -29,8 +19,11 @@ public class BagMovement : MonoBehaviour
     {
         if (currentTarget == null) return;
 
-        transform.position = Vector2.MoveTowards
-           (transform.position, currentTarget.position, speed * Time.deltaTime);
+        transform.position = Vector2.MoveTowards(
+            transform.position,
+            currentTarget.position,
+            speed * Time.deltaTime
+        );
 
         if (Vector2.Distance(transform.position, currentTarget.position) < 0.05f)
         {
@@ -40,15 +33,22 @@ public class BagMovement : MonoBehaviour
 
             if (junction != null)
             {
-                currentTarget = junction.GetNextPath();
-            }
+                Transform nextPath = junction.GetNextPath();
 
+                if (nextPath != null)
+                {
+                    currentTarget = nextPath;
+                }
+                else
+                {
+                    currentTarget = null;
+                }
+            }
             else
             {
-                Debug.Log("arrived at store!");
+                // Reached a carousel
                 currentTarget = null;
             }
         }
     }
-
 }
