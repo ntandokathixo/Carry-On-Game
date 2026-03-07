@@ -20,5 +20,14 @@ public class JunctionNode : MonoBehaviour
         }
 
     }
-    
+
+    void OnDrawGizmos()
+    {
+        if (switchController != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(transform.position, switchController.transform.position);
+        }
+    }
+
 }

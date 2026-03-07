@@ -1,0 +1,16 @@
+# Visual Studio temp files - IGNORE THESE!
+.vs/
+*.vsidx
+*.user
+*.csproj
+*.sln
+
+# Unity temp files - IGNORE THESE!
+Library/
+Temp/
+obj/
+
+# Only track YOUR actual game files
+!Assets/
+!ProjectSettings/
+!Packages/

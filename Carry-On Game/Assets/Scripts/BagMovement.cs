@@ -11,7 +11,14 @@ public class BagMovement : MonoBehaviour
 
     void Start()
     {
-        currentTarget = spawnPoint;
+        if (spawnPoint != null)
+        {
+            currentTarget = spawnPoint;
+        }
+        else
+        {
+            Debug.LogError("Spawn Point not assigned on " + gameObject.name);
+        }
     }
     void Update()
     {
