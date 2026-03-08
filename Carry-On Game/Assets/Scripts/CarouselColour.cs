@@ -2,80 +2,96 @@ using UnityEngine;
 
 public class CarouselColour : MonoBehaviour
 {
-    // Set this in the Inspector for each carousel
-    public Color carouselColour;
-
-    // Reference to GameManager
+    public LuggageColour expectedLuggageColour;
     private GameManager gameManager;
 
     void Start()
     {
-        // Find the GameManager in the scene
         gameManager = FindObjectOfType<GameManager>();
+        Debug.Log("CAROUSEL START: " + gameObject.name + " expects " + expectedLuggageColour);
 
-        if (gameManager == null)
+        // Check collider
+        Collider2D col = GetComponent<Collider2D>();
+        if (col == null)
         {
-            Debug.LogError("No GameManager found in scene!");
+            Debug.LogError("NO COLLIDER on " + gameObject.name + "!");
+        }
+        else if (!col.isTrigger)
+        {
+            Debug.LogError("COLLIDER is NOT a TRIGGER on " + gameObject.name + "!");
+        }
+        else
+        {
+            Debug.Log("Collider OK on " + gameObject.name);
         }
     }
 
-    // Called when something enters this carousel's trigger
     void OnTriggerEnter2D(Collider2D other)
     {
-        // Check if it's a bag
-        LuggageColour bag = other.GetComponent<LuggageColour>();
+        Debug.Log("TRIGGER ENTERED: " + other.gameObject.name + " hit " + gameObject.name);
 
-        if (bag != null)
+        BagColour bag = other.GetComponent<BagColour>();
+
+        if (bag == null)
         {
-            // Compare colours (with a small tolerance)
-            if (ColorsAreClose(bag.bagColour, carouselColour))
+            Debug.LogWarning("Object has NO BagColour script: " + other.gameObject.name);
+            return;
+        }
+
+        Debug.Log("Bag has colour: " + bag.luggageColour);
+        Debug.Log("Carousel expects: " + expectedLuggageColour);
+
+        if (bag.luggageColour == expectedLuggageColour)
+        {
+            Debug.Log("CORRECT! " + bag.luggageColour + " matches " + expectedLuggageColour);
+
+            // Add score
+            if (gameManager != null)
             {
-                // CORRECT! Win condition
-                Debug.Log(bag.name + " reached CORRECT carousel!");
-
-                // Add score
-                if (gameManager != null)
-                {
-                    gameManager.AddScore(1);
-                }
-
-                // Bag disappears (already happens in BagMovement)
-                // We don't destroy here - BagMovement already destroys
+                gameManager.AddScore(1);
+                Debug.Log("Score added!");
             }
-            else
+
+            // Destroy bag
+            Destroy(other.gameObject);
+            Debug.Log("Bag destroyed");
+        }
+        else
+        {
+            Debug.LogError("WRONG! Bag is " + bag.luggageColour + " but carousel expects " + expectedLuggageColour);
+
+            // Turn bag red
+            SpriteRenderer sr = other.GetComponent<SpriteRenderer>();
+            if (sr != null)
             {
-                // WRONG! Loss condition
-                Debug.LogError(bag.name + " reached WRONG carousel! GAME OVER");
+                sr.color = Color.red;
+                Debug.Log("Bag turned red");
+            }
 
-                // Turn the bag red to highlight the mistake
-                SpriteRenderer sr = other.GetComponent<SpriteRenderer>();
-                if (sr != null)
-                {
-                    sr.color = Color.red;
-                }
+            // Game over
+            if (gameManager != null)
+            {
+                gameManager.GameOver();
+                Debug.Log("Game Over triggered");
+            }
 
-                // Trigger game over
-                if (gameManager != null)
-                {
-                    gameManager.GameOver();
-                }
-
-                // Stop the bag from moving
-                BagMovement bagMove = other.GetComponent<BagMovement>();
-                if (bagMove != null)
-                {
-                    bagMove.enabled = false;
-                }
+            // Stop bag movement
+            BagMovement bagMove = other.GetComponent<BagMovement>();
+            if (bagMove != null)
+            {
+                bagMove.enabled = false;
+                Debug.Log("Bag movement stopped");
             }
         }
     }
 
-    // Helper function to compare colours (ignores small differences)
-    bool ColorsAreClose(Color a, Color b)
+    void OnTriggerStay2D(Collider2D other)
     {
-        float tolerance = 0.1f;
-        return Mathf.Abs(a.r - b.r) < tolerance &&
-               Mathf.Abs(a.g - b.g) < tolerance &&
-               Mathf.Abs(a.b - b.b) < tolerance;
+        Debug.Log("TRIGGER STAY: " + other.gameObject.name + " still in " + gameObject.name);
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        Debug.Log("TRIGGER EXIT: " + other.gameObject.name + " left " + gameObject.name);
     }
 }

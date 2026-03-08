@@ -496,3 +496,47 @@ Received Import Request.
 Start importing Assets/Prefabs/Luggage_Yellow.prefab using Guid(50df5b380e7323c4d8e0e477740859f2) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '6224f747117bc3313654c4a38dd91ea6') in 0.005783 seconds
 Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 10
 
+========================================================================
+Received Import Request.
+  Time since last request: 191.157388 seconds.
+  path: Assets/Prefabs/Luggage_Pink.prefab
+  artifactKey: Guid(e7ae4f462c6d67944ab0bd52417c48b1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Luggage_Pink.prefab using Guid(e7ae4f462c6d67944ab0bd52417c48b1) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '727d22cc629ce0d46b9d0fa7e2ec77ec') in 0.0114867 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 10
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.003545 seconds.
+  path: Assets/Prefabs/Luggage_Blue.prefab
+  artifactKey: Guid(1f082b69d5e810d46be9dfe41a6b7100) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Luggage_Blue.prefab using Guid(1f082b69d5e810d46be9dfe41a6b7100) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '96b1f121b68b8bc70ecef4a009bac5dd') in 0.0064233 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 10
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000025 seconds.
+  path: Assets/Prefabs/Luggage_Purple.prefab
+  artifactKey: Guid(e58bac0c89b13c64babc4d6bb083bb00) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Luggage_Purple.prefab using Guid(e58bac0c89b13c64babc4d6bb083bb00) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '661895a9d493ac88f46e88fcf4446377') in 0.0079859 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 10
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000036 seconds.
+  path: Assets/Prefabs/Luggage_Yellow.prefab
+  artifactKey: Guid(50df5b380e7323c4d8e0e477740859f2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Luggage_Yellow.prefab using Guid(50df5b380e7323c4d8e0e477740859f2) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '1cc59540c96ae2be9f51f3a7b4f00d07') in 0.0077082 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 10
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000021 seconds.
+  path: Assets/Prefabs/Luggage_Red.prefab
+  artifactKey: Guid(d57ab73064bfbc14f8224fffbabb1b27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Luggage_Red.prefab using Guid(d57ab73064bfbc14f8224fffbabb1b27) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '603180704d003e412295c540dc9a6e75') in 0.0090599 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 10
+
+Editor requested this worker to shutdown with reason: Scaling down because of idle timeout
+AssetImportWorker is now disconnected from the server
+Process exiting
+Exiting without the bug reporter. Application will terminate with return code 0

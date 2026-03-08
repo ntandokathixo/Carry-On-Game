@@ -44,6 +44,7 @@ public class BagMovement : MonoBehaviour
                 // Reached a carousel - will be detected by CarouselColour script
                 // We don't destroy here anymore - let the trigger handle it
                 // But we stop moving
+                Debug.Log("BAG REACHED CAROUSEL: " + gameObject.name + " at " + currentTarget.name);
                 currentTarget = null;
             }
         }

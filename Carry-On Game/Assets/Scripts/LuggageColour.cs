@@ -1,20 +1,11 @@
 using UnityEngine;
 
-public class LuggageColour : MonoBehaviour
+public class BagColour : MonoBehaviour
 {
-    // Set this in the Inspector for each bag prefab
-    public Color bagColour;
+    public LuggageColour luggageColour;  // Now shows as dropdown!
 
     void Start()
     {
-        // If not set in Inspector, try to get from sprite
-        if (bagColour == Color.clear)
-        {
-            SpriteRenderer sr = GetComponent<SpriteRenderer>();
-            if (sr != null)
-            {
-                bagColour = sr.color;
-            }
-        }
+        Debug.Log(gameObject.name + " is colour: " + luggageColour);
     }
 }
