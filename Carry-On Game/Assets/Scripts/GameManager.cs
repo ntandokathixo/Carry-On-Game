@@ -29,19 +29,27 @@ public class GameManager : MonoBehaviour
         {
             gameOverText.gameObject.SetActive(false);
         }
+
+        Debug.Log("GameManager started. Current best: " + personalBest);
     }
 
     public void AddScore(int points = 1)
     {
-        if (isGameOver) return;
+        if (isGameOver)
+        {
+            Debug.Log("Tried to add score but game is over");
+            return;
+        }
 
         currentScore += points;
+        Debug.Log("Score added! Current score: " + currentScore);
 
         // Check for new personal best
         if (currentScore > personalBest)
         {
             personalBest = currentScore;
             PlayerPrefs.SetInt("PersonalBest", personalBest);
+            PlayerPrefs.Save(); // Force save immediately
             Debug.Log("New personal best: " + personalBest);
         }
 
@@ -50,7 +58,11 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
-        if (isGameOver) return;
+        if (isGameOver)
+        {
+            Debug.Log("GameOver called but game is already over");
+            return;
+        }
 
         isGameOver = true;
 
@@ -61,6 +73,11 @@ public class GameManager : MonoBehaviour
         {
             gameOverText.gameObject.SetActive(true);
             gameOverText.text = "GAME OVER\nScore: " + currentScore + "\nBest: " + personalBest;
+            Debug.Log("Game over text should now be visible");
+        }
+        else
+        {
+            Debug.LogError("GameOverText is not assigned in GameManager!");
         }
 
         // Stop spawning new bags
@@ -68,14 +85,28 @@ public class GameManager : MonoBehaviour
         if (spawner != null)
         {
             spawner.StopSpawning();
+            Debug.Log("Spawning stopped");
+        }
+        else
+        {
+            Debug.LogError("SpawnManager not found!");
         }
 
-        // Optional: Freeze all bags
+        // Stop ALL bags from moving
         BagMovement[] allBags = FindObjectsOfType<BagMovement>();
+        Debug.Log("Found " + allBags.Length + " bags to stop");
+
         foreach (BagMovement bag in allBags)
         {
-            bag.enabled = false;
+            if (bag != null)
+            {
+                bag.enabled = false;
+                Debug.Log("Stopped bag: " + bag.gameObject.name);
+            }
         }
+
+        // Also find and stop any bags that might not have BagMovement (just in case)
+        // This is optional but thorough
     }
 
     void UpdateUI()
@@ -94,6 +125,7 @@ public class GameManager : MonoBehaviour
     // Call this to restart (e.g., from a button)
     public void RestartGame()
     {
+        Debug.Log("Restarting game...");
         SceneManager.LoadScene(restartSceneName);
     }
 
