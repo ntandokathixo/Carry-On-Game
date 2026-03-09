@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class CarouselColour : MonoBehaviour
@@ -24,6 +25,14 @@ public class CarouselColour : MonoBehaviour
         if (bag.luggageColour == expectedLuggageColour)
         {
             // CORRECT MATCH
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlayCorrect();
+
+            // Trigger glow on this carousel
+            GlowEffect glow = GetComponent<GlowEffect>();
+            if (glow != null)
+                glow.PlayGlow();
+
             Debug.Log("CORRECT! " + bag.luggageColour + " matches " + expectedLuggageColour);
 
             if (gameManager != null && !gameManager.IsGameOver())
@@ -35,8 +44,13 @@ public class CarouselColour : MonoBehaviour
         }
         else
         {
-            // WRONG MATCH - GAME OVER
-            Debug.LogError("WRONG! Bag is " + bag.luggageColour + " but carousel expects " + expectedLuggageColour);
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayWrongEmergency();
+                Debug.Log("PlayWrong() called");
+            }
+
+            Debug.Log(" WRONG! Bag is " + bag.luggageColour + " but carousel expects " + expectedLuggageColour);
 
             // Turn bag red
             SpriteRenderer sr = other.GetComponent<SpriteRenderer>();
@@ -56,7 +70,10 @@ public class CarouselColour : MonoBehaviour
             if (bagMove != null)
             {
                 bagMove.enabled = false;
+                
             }
         }
+
+       
     }
 }

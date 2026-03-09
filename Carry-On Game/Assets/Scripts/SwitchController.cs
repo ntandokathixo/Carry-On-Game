@@ -15,6 +15,11 @@ public class SwitchController : MonoBehaviour
     {
         goRight = !goRight;
         UpdateSprite();
+
+        // Play switch sound
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySwitch();
+
         Debug.Log("Switch toggled. Go Right: " + goRight);
     }
 

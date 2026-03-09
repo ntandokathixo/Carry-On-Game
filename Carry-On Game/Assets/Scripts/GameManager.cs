@@ -50,6 +50,11 @@ public class GameManager : MonoBehaviour
             personalBest = currentScore;
             PlayerPrefs.SetInt("PersonalBest", personalBest);
             PlayerPrefs.Save(); // Force save immediately
+
+            // Play high score sound
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlayNewHighScore();
+
             Debug.Log("New personal best: " + personalBest);
         }
 
@@ -74,7 +79,12 @@ public class GameManager : MonoBehaviour
         isGameOver = true;
 
         Debug.Log("GAME OVER! Final Score: " + currentScore);
-
+        // STOP BACKGROUND MUSIC
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopMusic();
+            Debug.Log("Background music stopped");
+        }
         // Show game over text
         if (gameOverText != null)
         {
@@ -82,6 +92,7 @@ public class GameManager : MonoBehaviour
             gameOverText.text = "GAME OVER\nScore: " + currentScore + "\nBest: " + personalBest;
             Debug.Log("Game over text should now be visible");
         }
+         
         else
         {
             Debug.LogError("GameOverText is not assigned in GameManager!");
