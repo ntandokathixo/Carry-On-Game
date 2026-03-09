@@ -3346,3 +3346,23 @@ Received Import Request.
 Start importing Assets/Images/yellowlug 1.png using Guid(a5caf42aeddb69f45a7cf8b4cc10f8ea) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'a930fa9c1f38e216e822251c8dc34b2e') in 0.0257624 seconds
 Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
 
+========================================================================
+Received Import Request.
+  Time since last request: 3972.984913 seconds.
+  path: Assets/Images/J5 Left 2.png
+  artifactKey: Guid(7affe7ce947559847b1abd7fc8fa255d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Images/J5 Left 2.png using Guid(7affe7ce947559847b1abd7fc8fa255d) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'f80ec9744de140233a783b94810b652c') in 0.1056274 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000107 seconds.
+  path: Assets/Images/J7 Left2.png
+  artifactKey: Guid(ab2838e5f74c8da419c55f3ec8d253d6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Images/J7 Left2.png using Guid(ab2838e5f74c8da419c55f3ec8d253d6) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'da763aa82c0235b1e3a52e2cfabb38fa') in 0.0267353 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+Editor requested this worker to shutdown with reason: Scaling down because of idle timeout
+AssetImportWorker is now disconnected from the server
+Process exiting
+Exiting without the bug reporter. Application will terminate with return code 0

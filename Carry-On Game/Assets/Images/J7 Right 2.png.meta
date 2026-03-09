@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 0b819bb934cd048449b8b4f0f1ba5fb6
+guid: 788a0032c3f23b34797a0d2cf4f9bbe5
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5809822119632170394
-    second: J2 Right_0
+      213: 3895920125804920223
+    second: J7 Right 2_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: J2 Right_0
+      name: J7 Right 2_0
       rect:
         serializedVersion: 2
-        x: 914
-        y: 456
-        width: 46
-        height: 102
+        x: 1241
+        y: 713
+        width: 110
+        height: 44
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6621e1f509d5f5fa0800000000000000
-      internalID: -5809822119632170394
+      spriteID: f9db5e386b6111630800000000000000
+      internalID: 3895920125804920223
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      J2 Right_0: -5809822119632170394
+      J7 Right 2_0: 3895920125804920223
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
