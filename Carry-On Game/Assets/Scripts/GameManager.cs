@@ -6,8 +6,14 @@ public class GameManager : MonoBehaviour
 {
     [Header("UI References")]
     public Text scoreText;
-    public Text gameOverText;
     public Text personalBestText;
+
+    [Header("Game Over Panel")]
+    public GameObject gameOverPanel;
+    public Text gameOverTitleText;     // "GAME OVER"
+    public Text gameOverScoreText;      // dynamic score
+    public Text gameOverBestText;       // dynamic best
+    public Button restartButton;
 
     [Header("Game Settings")]
     public string restartSceneName = "SampleScene"; // Change to your scene name
@@ -15,6 +21,11 @@ public class GameManager : MonoBehaviour
     private int currentScore = 0;
     private int personalBest = 0;
     private bool isGameOver = false;
+
+    [Header("Celebration Effects")]
+    public GameObject highScorePanel;
+    public float celebrationDuration = 3f;
+    private bool newHighScoreAchieved = false;
 
     void Start()
     {
@@ -24,10 +35,22 @@ public class GameManager : MonoBehaviour
         // Update UI
         UpdateUI();
 
-        // Hide game over text at start
-        if (gameOverText != null)
+        // Hide game over panel at start
+        if (gameOverPanel != null)
         {
-            gameOverText.gameObject.SetActive(false);
+            gameOverPanel.SetActive(false);
+        }
+
+        // Set up restart button listener
+        if (restartButton != null)
+        {
+            restartButton.onClick.AddListener(RestartGame);
+        }
+
+        // Hide high score panel at start
+        if (highScorePanel != null)
+        {
+            highScorePanel.SetActive(false);
         }
 
         Debug.Log("GameManager started. Current best: " + personalBest);
@@ -55,10 +78,14 @@ public class GameManager : MonoBehaviour
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlayNewHighScore();
 
+            // Show celebration (only if not already showing)
+            if (!newHighScoreAchieved)
+                ShowNewHighScoreCelebration();
+
             Debug.Log("New personal best: " + personalBest);
         }
 
-        // NEW: Notify SpawnManager to increase difficulty based on score
+        // Notify SpawnManager to increase difficulty based on score
         SpawnManager spawner = FindObjectOfType<SpawnManager>();
         if (spawner != null)
         {
@@ -79,23 +106,33 @@ public class GameManager : MonoBehaviour
         isGameOver = true;
 
         Debug.Log("GAME OVER! Final Score: " + currentScore);
+
         // STOP BACKGROUND MUSIC
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.StopMusic();
             Debug.Log("Background music stopped");
         }
-        // Show game over text
-        if (gameOverText != null)
+
+        // SHOW GAME OVER PANEL instead of old text
+        if (gameOverPanel != null)
         {
-            gameOverText.gameObject.SetActive(true);
-            gameOverText.text = "GAME OVER\nScore: " + currentScore + "\nBest: " + personalBest;
-            Debug.Log("Game over text should now be visible");
+            gameOverPanel.SetActive(true);
+
+            if (gameOverTitleText != null)
+                gameOverTitleText.text = "GAME OVER";
+
+            if (gameOverScoreText != null)
+                gameOverScoreText.text = "Score: " + currentScore;
+
+            if (gameOverBestText != null)
+                gameOverBestText.text = "Best: " + personalBest;
+
+            Debug.Log("Game over panel shown");
         }
-         
         else
         {
-            Debug.LogError("GameOverText is not assigned in GameManager!");
+            Debug.LogError("GameOverPanel is not assigned in GameManager!");
         }
 
         // Stop spawning new bags
@@ -122,6 +159,8 @@ public class GameManager : MonoBehaviour
                 Debug.Log("Stopped bag: " + bag.gameObject.name);
             }
         }
+
+        newHighScoreAchieved = false;  // Reset for next game
     }
 
     void UpdateUI()
@@ -141,6 +180,14 @@ public class GameManager : MonoBehaviour
     public void RestartGame()
     {
         Debug.Log("Restarting game...");
+
+        // Hide panels before reload
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
+
+        if (highScorePanel != null)
+            highScorePanel.SetActive(false);
+
         SceneManager.LoadScene(restartSceneName);
     }
 
@@ -148,5 +195,30 @@ public class GameManager : MonoBehaviour
     public bool IsGameOver()
     {
         return isGameOver;
+    }
+
+    public void ShowNewHighScoreCelebration()
+    {
+        newHighScoreAchieved = true;
+
+        // Show panel
+        if (highScorePanel != null)
+        {
+            highScorePanel.SetActive(true);
+
+            // Update score text in panel if you have one
+            Text panelText = highScorePanel.GetComponentInChildren<Text>();
+            if (panelText != null)
+                panelText.text = "NEW HIGH SCORE!\n" + personalBest;
+        }
+
+        // Auto-hide after duration
+        Invoke("HideCelebration", celebrationDuration);
+    }
+
+    void HideCelebration()
+    {
+        if (highScorePanel != null)
+            highScorePanel.SetActive(false);
     }
 }

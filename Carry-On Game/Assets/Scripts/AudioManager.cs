@@ -35,13 +35,28 @@ public class AudioManager : MonoBehaviour
     }
     void Start()
     {
-        // Start background music
-        if (musicSource != null && backgroundMusic != null)
+        // Load sound preferences
+        bool musicEnabled = PlayerPrefs.GetInt("MusicEnabled", 1) == 1;
+        bool soundEnabled = PlayerPrefs.GetInt("SoundEnabled", 1) == 1;
+
+        // Apply to audio sources
+        if (musicSource != null)
         {
-            musicSource.clip = backgroundMusic;
-            musicSource.loop = true;
-            musicSource.Play();
+            musicSource.mute = !musicEnabled;
+            if (backgroundMusic != null && musicEnabled)
+            {
+                musicSource.clip = backgroundMusic;
+                musicSource.loop = true;
+                musicSource.Play();
+            }
         }
+
+        if (sfxSource != null)
+        {
+            sfxSource.mute = !soundEnabled;
+        }
+
+        Debug.Log("AudioManager started - Music: " + musicEnabled + ", Sound: " + soundEnabled);
     }
 
     public void PlayCorrect()
