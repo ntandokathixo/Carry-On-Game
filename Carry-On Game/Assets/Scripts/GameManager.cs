@@ -53,6 +53,13 @@ public class GameManager : MonoBehaviour
             Debug.Log("New personal best: " + personalBest);
         }
 
+        // NEW: Notify SpawnManager to increase difficulty based on score
+        SpawnManager spawner = FindObjectOfType<SpawnManager>();
+        if (spawner != null)
+        {
+            spawner.OnScoreIncreased(currentScore);
+        }
+
         UpdateUI();
     }
 
@@ -104,9 +111,6 @@ public class GameManager : MonoBehaviour
                 Debug.Log("Stopped bag: " + bag.gameObject.name);
             }
         }
-
-        // Also find and stop any bags that might not have BagMovement (just in case)
-        // This is optional but thorough
     }
 
     void UpdateUI()

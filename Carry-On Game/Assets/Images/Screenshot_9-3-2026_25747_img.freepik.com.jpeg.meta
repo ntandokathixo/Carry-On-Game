@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 952ecaa171a11f84c8cb0a11b33f598d
+guid: ca581b92856a4c04eb9d507e907dd1cf
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3497853418927818751
-    second: Screenshot_7-3-2026_231722_wallpapers.com_0
+      213: 6540017475762134196
+    second: Screenshot_9-3-2026_25747_img.freepik.com_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Screenshot_7-3-2026_231722_wallpapers.com_0
+      name: Screenshot_9-3-2026_25747_img.freepik.com_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 809
-        height: 446
+        width: 769
+        height: 542
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 108fb6019d0257fc0800000000000000
-      internalID: -3497853418927818751
+      spriteID: 4bc16a36e3fc2ca50800000000000000
+      internalID: 6540017475762134196
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Screenshot_7-3-2026_231722_wallpapers.com_0: -3497853418927818751
+      Screenshot_9-3-2026_25747_img.freepik.com_0: 6540017475762134196
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
