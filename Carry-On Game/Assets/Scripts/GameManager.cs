@@ -52,16 +52,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("GameManager started. Current best: " + personalBest);
     }
 
-    void Update()  // ADD THIS
-    {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            PlayerPrefs.DeleteKey("PersonalBest");
-            personalBest = 0;
-            UpdateUI();
-            Debug.Log("Best score reset");
-        }
-    }
+ 
 
     public void AddScore(int points = 1)
     {
