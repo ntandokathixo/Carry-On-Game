@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour
     private int personalBest = 0;
     private bool isGameOver = false;
     private bool newHighScoreAchieved = false; // Track if this game set a record
+    private bool hasPlayedEndSound = false;
 
     void Start()
     {
@@ -61,7 +62,18 @@ public class GameManager : MonoBehaviour
         Debug.Log("GameManager started. Current best: " + personalBest);
     }
 
-    
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            PlayerPrefs.DeleteKey("PersonalBest");
+            personalBest = 0;
+            UpdateUI();
+            Debug.Log(" Best score reset to 0");
+        }
+    }
+
+
 
     public void AddScore(int points = 1)
     {
@@ -116,6 +128,7 @@ public class GameManager : MonoBehaviour
             // Play high score sound
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlayNewHighScore();
+            hasPlayedEndSound = true; // Mark that we played a sound
 
             // SHOW HIGH SCORE PANEL FIRST
             if (highScorePanel != null)
@@ -128,14 +141,21 @@ public class GameManager : MonoBehaviour
                 if (panelText != null)
                 {
                     panelText.text = "\n" + personalBest;
+                    
                 }
+                PauseGame();
 
-                
             }
             else
             {
                 // If no high score panel, just show game over panel
-                Debug.LogError("highScorePanel is NULL!");
+                Debug.Log("highScorePanel is NULL!");
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlayWrongEmergency();
+                    Debug.Log(" Game over sound played");
+                }
+
                 ShowGameOverPanel();
             }
         }
@@ -144,6 +164,10 @@ public class GameManager : MonoBehaviour
             // No new record, show game over panel immediately
             ShowGameOverPanel();
         }
+    }
+    public bool HasPlayedEndSound()
+    {
+        return hasPlayedEndSound;
     }
 
     void ShowGameOverPanel()
@@ -205,5 +229,23 @@ public class GameManager : MonoBehaviour
     public bool IsGameOver()
     {
         return isGameOver;
+    }
+
+    public void PauseGame()
+    {
+        // Stop spawning
+        SpawnManager spawner = FindObjectOfType<SpawnManager>();
+        if (spawner != null)
+            spawner.StopSpawning();
+
+        // Stop ALL bags
+        BagMovement[] allBags = FindObjectsOfType<BagMovement>();
+        foreach (BagMovement bag in allBags)
+        {
+            if (bag != null)
+                bag.enabled = false;
+        }
+
+        Debug.Log("Game paused - all bags stopped");
     }
 }

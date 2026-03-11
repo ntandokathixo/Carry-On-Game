@@ -18,15 +18,23 @@ public class CarouselColour : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        if (gameManager != null && gameManager.IsGameOver())
+            return;
+
         BagColour bag = other.GetComponent<BagColour>();
 
         if (bag == null) return;
 
+        
+
         if (bag.luggageColour == expectedLuggageColour)
         {
             // CORRECT MATCH
-            if (AudioManager.Instance != null)
-                AudioManager.Instance.PlayCorrect();
+            
+            {
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.PlayCorrect();
+            }
 
             // Trigger glow on this carousel
             GlowEffect glow = GetComponent<GlowEffect>();
@@ -44,10 +52,10 @@ public class CarouselColour : MonoBehaviour
         }
         else
         {
-            if (AudioManager.Instance != null)
+            if (gameManager != null && !gameManager.HasPlayedEndSound())
             {
-                AudioManager.Instance.PlayWrongEmergency();
-                Debug.Log("PlayWrong() called");
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.PlayWrongEmergency();
             }
 
             Debug.Log(" WRONG! Bag is " + bag.luggageColour + " but carousel expects " + expectedLuggageColour);

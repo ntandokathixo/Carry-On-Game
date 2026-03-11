@@ -12,11 +12,14 @@ public class AudioManager : MonoBehaviour
     public AudioClip correctSound;
     public AudioClip wrongSound;
     public AudioClip switchSound;
-    public AudioClip newHighScoreSound;  // Optional celebration sound
-    
+    public AudioClip newHighScoreSound;
+
 
     [Header("Background Music")]
     public AudioClip backgroundMusic;
+
+    // Sound lock to prevent wrong sound during celebration
+    private bool canPlayWrongSound = true;
 
     void Awake()
     {
@@ -25,19 +28,20 @@ public class AudioManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             AudioListener.volume = 2.0f;
-            Debug.Log(" AudioManager Instance created: " + gameObject.name);
+            Debug.Log("AudioManager Instance created: " + gameObject.name);
         }
         else
         {
-            Debug.Log(" Duplicate AudioManager destroyed" + gameObject.name);
+            Debug.Log("Duplicate AudioManager destroyed: " + gameObject.name);
             Destroy(gameObject);
         }
     }
+
     void Start()
     {
         // Load sound preferences
         bool musicEnabled = PlayerPrefs.GetInt("MusicEnabled", 1) == 1;
-        bool soundEnabled = PlayerPrefs.GetInt("SoundEnabled", 1) == 1; 
+        bool soundEnabled = PlayerPrefs.GetInt("SoundEnabled", 1) == 1;
 
         // Apply to audio sources
         if (musicSource != null && backgroundMusic != null)
@@ -48,7 +52,7 @@ public class AudioManager : MonoBehaviour
             if (musicEnabled)
             {
                 musicSource.Play();
-                Debug.Log(" Music started");
+                Debug.Log("Music started");
             }
             else
             {
@@ -64,6 +68,20 @@ public class AudioManager : MonoBehaviour
         Debug.Log("AudioManager started - Music: " + musicEnabled + ", Sound: " + soundEnabled);
     }
 
+    // Method to block wrong sound during celebration
+    public void BlockWrongSound()
+    {
+        canPlayWrongSound = false;
+        Debug.Log("Wrong sound blocked");
+    }
+
+    // Method to unblock wrong sound after celebration
+    public void UnblockWrongSound()
+    {
+        canPlayWrongSound = true;
+        Debug.Log("Wrong sound unblocked");
+    }
+
     public void PlayCorrect()
     {
         if (sfxSource != null && correctSound != null)
@@ -72,12 +90,21 @@ public class AudioManager : MonoBehaviour
 
     public void PlayWrongEmergency()
     {
+        // Check if wrong sound is blocked
+        if (!canPlayWrongSound)
+        {
+            Debug.Log("Wrong sound blocked - not playing");
+            return;
+        }
+
         // Create temporary audio source
         GameObject tempGO = new GameObject("TempWrongSound");
         AudioSource tempSource = tempGO.AddComponent<AudioSource>();
         tempSource.clip = wrongSound;
         tempSource.volume = 1.0f;
         tempSource.Play();
+
+        Debug.Log("Wrong sound played from temporary source");
 
         // Destroy after sound finishes
         Destroy(tempGO, wrongSound.length);

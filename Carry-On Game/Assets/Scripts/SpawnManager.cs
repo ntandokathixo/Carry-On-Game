@@ -13,6 +13,8 @@ public class SpawnManager : MonoBehaviour
     public float minSpawnInterval = 1f;
     public int pointsPerDifficultyIncrease = 7;
     public float minDistanceFromSpawn = 1.5f;  // How far bag must be before next spawn
+    private Dictionary<LuggageColour, int> activeBagCount = new Dictionary<LuggageColour, int>();
+    private int maxBagsPerColour = 2; // Maximum 3 of each colour at once
 
     private float currentSpawnInterval;
     private bool isSpawning = true;
@@ -23,6 +25,15 @@ public class SpawnManager : MonoBehaviour
     {
         currentSpawnInterval = baseSpawnInterval;
         gameManager = FindObjectOfType<GameManager>();
+
+        foreach (GameObject prefab in colourPrefabs)
+        {
+            BagColour bagColour = prefab.GetComponent<BagColour>();
+            if (bagColour != null && !activeBagCount.ContainsKey(bagColour.luggageColour))
+            {
+                activeBagCount[bagColour.luggageColour] = 0;
+            }
+        }
 
         // Start the spawn queue
         StartCoroutine(SpawnQueue());
@@ -75,15 +86,56 @@ public class SpawnManager : MonoBehaviour
 
     void SpawnBag()
     {
-        // Pick random colour
-        int randomIndex = Random.Range(0, colourPrefabs.Count);
-        GameObject selectedPrefab = colourPrefabs[randomIndex];
+        if (!isSpawning) return;
 
-        // Create bag at exact spawn point (no offset)
+      
+        // Find available colours (those with count < maxBagsPerColour)
+        List<GameObject> availablePrefabs = new List<GameObject>();
+
+        foreach (GameObject prefab in colourPrefabs)
+        {
+            BagColour bagColour = prefab.GetComponent<BagColour>();
+            if (bagColour != null)
+            {
+                // Check if we haven't reached the limit for this colour
+                if (activeBagCount.ContainsKey(bagColour.luggageColour) &&
+                    activeBagCount[bagColour.luggageColour] < maxBagsPerColour)
+                {
+                    availablePrefabs.Add(prefab);
+                }
+            }
+        }
+
+        // If no colours available, wait and try again
+        if (availablePrefabs.Count == 0)
+        {
+            Debug.Log("All colours at max capacity - waiting for bags to be destroyed");
+            return;
+        }
+
+        // Pick random colour from available ones
+        int randomIndex = Random.Range(0, availablePrefabs.Count);
+        GameObject selectedPrefab = availablePrefabs[randomIndex];
+        BagColour selectedBagColour = selectedPrefab.GetComponent<BagColour>();
+
+        // Create bag
         GameObject newBag = Instantiate(selectedPrefab, spawnPoint.position, Quaternion.identity);
-
-        // Tag it
         newBag.tag = "Bag";
+
+        
+        // Add a component to track when this bag is destroyed
+        LuggageTracker tracker = newBag.AddComponent<LuggageTracker>();
+        tracker.colour = selectedBagColour.luggageColour;
+        tracker.spawnManager = this;
+
+       
+        // Increment count for this colour
+        if (selectedBagColour != null && activeBagCount.ContainsKey(selectedBagColour.luggageColour))
+        {
+            activeBagCount[selectedBagColour.luggageColour]++;
+            Debug.Log("Spawned " + selectedBagColour.luggageColour + " bag. Total active: " +
+                      activeBagCount[selectedBagColour.luggageColour] + "/3");
+        }
 
         // Set first target
         BagMovement bagMove = newBag.GetComponent<BagMovement>();
@@ -92,6 +144,16 @@ public class SpawnManager : MonoBehaviour
             bagMove.currentTarget = firstJunction;
         }
     }
+
+    public void OnBagDestroyed(LuggageColour colour)
+    {
+        if (activeBagCount.ContainsKey(colour))
+        {
+            activeBagCount[colour] = Mathf.Max(0, activeBagCount[colour] - 1);
+            Debug.Log(colour + " bag destroyed. Remaining: " + activeBagCount[colour] + "/3");
+        }
+    }
+
 
     public void OnScoreIncreased(int newScore)
     {

@@ -992,7 +992,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -18, y: -237}
+  m_AnchoredPosition: {x: -18, y: -211}
   m_SizeDelta: {x: 101.1, y: 77.506}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &216258306
@@ -1978,8 +1978,8 @@ MonoBehaviour:
   spawnPoint: {fileID: 36465291}
   firstJunction: {fileID: 1102504066}
   startDelay: 5
-  baseSpawnInterval: 3
-  minSpawnInterval: 1
+  baseSpawnInterval: 4
+  minSpawnInterval: 1.5
   pointsPerDifficultyIncrease: 7
   minDistanceFromSpawn: 1.5
 --- !u!4 &403314960
@@ -3726,7 +3726,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Good Try
+  m_Text: 'Good Try! '
 --- !u!222 &982453620
 CanvasRenderer:
   m_ObjectHideFlags: 0
