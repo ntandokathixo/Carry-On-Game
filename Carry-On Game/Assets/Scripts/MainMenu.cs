@@ -17,9 +17,19 @@ public class MainMenu : MonoBehaviour
     private bool soundEnabled = true;
     private Text musicButtonText;
     private Text soundButtonText;
+    private AudioManager audioManager;
 
     void Start()
     {
+        // Find the AudioManager (it should be in this scene now)
+        audioManager = FindObjectOfType<AudioManager>();
+
+        if (audioManager == null)
+        {
+            Debug.LogError("No AudioManager found in Main Menu scene! Please add one.");
+            return;
+        }
+
         // Load saved preferences
         musicEnabled = PlayerPrefs.GetInt("MusicEnabled", 1) == 1;
         soundEnabled = PlayerPrefs.GetInt("SoundEnabled", 1) == 1;
@@ -30,6 +40,10 @@ public class MainMenu : MonoBehaviour
 
         if (soundButton != null)
             soundButtonText = soundButton.GetComponentInChildren<Text>();
+
+        // Apply settings to AudioManager
+        audioManager.SetMusicEnabled(musicEnabled);
+        audioManager.SetSoundEnabled(soundEnabled);
 
         // Update button text
         UpdateButtonText();
@@ -53,6 +67,10 @@ public class MainMenu : MonoBehaviour
         musicEnabled = !musicEnabled;
         PlayerPrefs.SetInt("MusicEnabled", musicEnabled ? 1 : 0);
         PlayerPrefs.Save();
+
+        if (audioManager != null)
+            audioManager.SetMusicEnabled(musicEnabled);
+
         UpdateButtonText();
         Debug.Log("Music " + (musicEnabled ? "ON" : "OFF"));
     }
@@ -62,6 +80,10 @@ public class MainMenu : MonoBehaviour
         soundEnabled = !soundEnabled;
         PlayerPrefs.SetInt("SoundEnabled", soundEnabled ? 1 : 0);
         PlayerPrefs.Save();
+
+        if (audioManager != null)
+            audioManager.SetSoundEnabled(soundEnabled);
+
         UpdateButtonText();
         Debug.Log("Sound " + (soundEnabled ? "ON" : "OFF"));
     }

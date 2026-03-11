@@ -29,7 +29,7 @@ public class AudioManager : MonoBehaviour
         }
         else
         {
-            Debug.Log(" Duplicate AudioManager destroyed");
+            Debug.Log(" Duplicate AudioManager destroyed" + gameObject.name);
             Destroy(gameObject);
         }
     }
@@ -37,17 +37,22 @@ public class AudioManager : MonoBehaviour
     {
         // Load sound preferences
         bool musicEnabled = PlayerPrefs.GetInt("MusicEnabled", 1) == 1;
-        bool soundEnabled = PlayerPrefs.GetInt("SoundEnabled", 1) == 1;
+        bool soundEnabled = PlayerPrefs.GetInt("SoundEnabled", 1) == 1; 
 
         // Apply to audio sources
-        if (musicSource != null)
+        if (musicSource != null && backgroundMusic != null)
         {
-            musicSource.mute = !musicEnabled;
-            if (backgroundMusic != null && musicEnabled)
+            musicSource.clip = backgroundMusic;
+            musicSource.loop = true;
+
+            if (musicEnabled)
             {
-                musicSource.clip = backgroundMusic;
-                musicSource.loop = true;
                 musicSource.Play();
+                Debug.Log(" Music started");
+            }
+            else
+            {
+                musicSource.mute = true;
             }
         }
 
@@ -106,5 +111,29 @@ public class AudioManager : MonoBehaviour
     {
         if (sfxSource != null)
             sfxSource.volume = volume;
+    }
+
+    public void SetMusicEnabled(bool enabled)
+    {
+        if (musicSource != null)
+        {
+            musicSource.mute = !enabled;
+
+            // If turning on and music isn't playing, start it
+            if (enabled && !musicSource.isPlaying && backgroundMusic != null)
+            {
+                musicSource.clip = backgroundMusic;
+                musicSource.loop = true;
+                musicSource.Play();
+            }
+        }
+    }
+
+    public void SetSoundEnabled(bool enabled)
+    {
+        if (sfxSource != null)
+        {
+            sfxSource.mute = !enabled;
+        }
     }
 }

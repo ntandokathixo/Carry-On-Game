@@ -16,6 +16,9 @@ public class GameManager : MonoBehaviour
 
     [Header("High Score Celebration")]
     public GameObject highScorePanel;  // Will show at Game Over if new record
+    public Text highScoreMessageText;
+    public Button highScorePlayAgainButton;
+    public Button highScoreMenuButton;
     public float celebrationDuration = 3f;
 
     [Header("Game Settings")]
@@ -49,10 +52,16 @@ public class GameManager : MonoBehaviour
         if (menuButton != null)
             menuButton.onClick.AddListener(GoToMainMenu);
 
+        if (highScorePlayAgainButton != null)
+            highScorePlayAgainButton.onClick.AddListener(RestartGame);
+
+        if (highScoreMenuButton != null)
+            highScoreMenuButton.onClick.AddListener(GoToMainMenu);
+
         Debug.Log("GameManager started. Current best: " + personalBest);
     }
 
- 
+    
 
     public void AddScore(int points = 1)
     {
@@ -112,20 +121,21 @@ public class GameManager : MonoBehaviour
             if (highScorePanel != null)
             {
                 highScorePanel.SetActive(true);
+                Debug.Log("High score panel activated");
 
                 // Update high score text
                 Text panelText = highScorePanel.GetComponentInChildren<Text>();
                 if (panelText != null)
-                    panelText.text = "NEW HIGH SCORE!\n" + personalBest;
+                {
+                    panelText.text = "\n" + personalBest;
+                }
 
-                Debug.Log("High score panel shown");
-
-                // Hide it after celebration duration
-                Invoke("ShowGameOverPanel", celebrationDuration);
+                
             }
             else
             {
                 // If no high score panel, just show game over panel
+                Debug.LogError("highScorePanel is NULL!");
                 ShowGameOverPanel();
             }
         }
@@ -149,7 +159,7 @@ public class GameManager : MonoBehaviour
 
             if (gameOverMessageText != null)
             {
-                gameOverMessageText.text = "GAME OVER\n\nScore: " + currentScore + "\nBest: " + personalBest;
+                gameOverMessageText.text = "\n\nScore: " + currentScore + "\nBest: " + personalBest;
             }
 
             Debug.Log("Game over panel shown");

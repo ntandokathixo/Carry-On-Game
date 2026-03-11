@@ -5,7 +5,7 @@ public class InstructionsManager : MonoBehaviour
 {
     public GameObject instructionsPanel;
     public float displayDuration = 5f;
-    public float startDelay = 1f;
+    public float startDelay = 0f;
 
     public GameObject junctionToGlow; // Changed from JunctionGlow to GameObject
     private JunctionGlow junctionGlowScript; // We'll get the script from this
