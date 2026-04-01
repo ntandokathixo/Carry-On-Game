@@ -14,7 +14,6 @@ public class AudioManager : MonoBehaviour
     public AudioClip switchSound;
     public AudioClip newHighScoreSound;
 
-
     [Header("Background Music")]
     public AudioClip backgroundMusic;
 
@@ -66,6 +65,25 @@ public class AudioManager : MonoBehaviour
         }
 
         Debug.Log("AudioManager started - Music: " + musicEnabled + ", Sound: " + soundEnabled);
+    }
+
+    // NEW METHOD: Restart background music
+    public void RestartMusic()
+    {
+        if (musicSource != null && backgroundMusic != null)
+        {
+            bool wasMuted = musicSource.mute;
+            bool musicEnabled = PlayerPrefs.GetInt("MusicEnabled", 1) == 1;
+
+            // Only restart if music is enabled
+            if (musicEnabled)
+            {
+                musicSource.Stop();
+                musicSource.clip = backgroundMusic;
+                musicSource.Play();
+                Debug.Log("Music restarted");
+            }
+        }
     }
 
     // Method to block wrong sound during celebration

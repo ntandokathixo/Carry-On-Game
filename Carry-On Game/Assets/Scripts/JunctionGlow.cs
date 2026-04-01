@@ -3,12 +3,13 @@ using System.Collections;
 
 public class JunctionGlow : MonoBehaviour
 {
-    public Color glowColor = Color.yellow;
-    public float pulseSpeed = 0.2f;
+    public Color glowColor = new Color(1f, 1f, 0.5f, 1f); // Soft yellow
+    public float pulseSpeed = 2f;
+    public float glowStrength = 0.7f; // How intense the glow is (0 to 1)
 
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
-    private Coroutine currentGlowRoutine;
+    private bool isGlowing = false;
 
     void Start()
     {
@@ -17,36 +18,23 @@ public class JunctionGlow : MonoBehaviour
         {
             originalColor = spriteRenderer.color;
         }
-        else
-        {
-            Debug.LogError("Junction " + gameObject.name + " has no SpriteRenderer!");
-        }
     }
 
     public void StartGlow()
     {
         if (spriteRenderer == null) return;
 
-        // Stop any existing glow
-        if (currentGlowRoutine != null)
-        {
-            StopCoroutine(currentGlowRoutine);
-        }
-
-        // Start new glow
-        currentGlowRoutine = StartCoroutine(GlowRoutine());
+        isGlowing = true;
+        StopAllCoroutines();
+        StartCoroutine(GlowRoutine());
         Debug.Log("Started glow on " + gameObject.name);
     }
 
     public void StopGlow()
     {
-        if (currentGlowRoutine != null)
-        {
-            StopCoroutine(currentGlowRoutine);
-            currentGlowRoutine = null;
-        }
+        isGlowing = false;
+        StopAllCoroutines();
 
-        // Reset to original color
         if (spriteRenderer != null)
         {
             spriteRenderer.color = originalColor;
@@ -57,11 +45,20 @@ public class JunctionGlow : MonoBehaviour
 
     IEnumerator GlowRoutine()
     {
-        while (true)
+        float time = 0;
+
+        while (isGlowing)
         {
-            // Pulse between original and glow color
-            float t = Mathf.PingPong(Time.time * pulseSpeed, 1);
-            spriteRenderer.color = Color.Lerp(originalColor, glowColor, t);
+            time += Time.deltaTime * pulseSpeed;
+            // Smooth sine wave pulse between 0 and 1
+            float t = (Mathf.Sin(time) + 1f) / 2f;
+            // Apply glow strength to make it more subtle
+            float glowAmount = t * glowStrength;
+
+            // Blend between original color and glow color
+            Color targetColor = Color.Lerp(originalColor, glowColor, glowAmount);
+            spriteRenderer.color = targetColor;
+
             yield return null;
         }
     }

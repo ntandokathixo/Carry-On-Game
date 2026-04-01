@@ -3,8 +3,8 @@ using UnityEngine;
 public class SwitchController : MonoBehaviour
 {
     public bool goRight = true;
-    public GameObject rightSpriteObject;  // Drag RightSprite here
-    public GameObject leftSpriteObject;    // Drag LeftSprite here
+    public GameObject rightSpriteObject;
+    public GameObject leftSpriteObject;
 
     void Start()
     {
@@ -16,16 +16,21 @@ public class SwitchController : MonoBehaviour
         goRight = !goRight;
         UpdateSprite();
 
-        // Play switch sound
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySwitch();
 
-        Debug.Log("Switch toggled. Go Right: " + goRight);
+        Debug.Log("Switch toggled: " + gameObject.name + " Go Right: " + goRight);
+
+        // Notify InstructionsManager that this switch was tapped
+        InstructionsManager instructionsManager = FindObjectOfType<InstructionsManager>();
+        if (instructionsManager != null)
+        {
+            instructionsManager.OnSwitchTapped(gameObject);
+        }
     }
 
     void UpdateSprite()
     {
-        // Enable the correct sprite, disable the other
         rightSpriteObject.SetActive(goRight);
         leftSpriteObject.SetActive(!goRight);
     }

@@ -24,8 +24,18 @@ public class BagMovement : MonoBehaviour
         {
             transform.position = currentTarget.position;
 
-            JunctionNode junction = currentTarget.GetComponent<JunctionNode>();
+            // Check if current target is a waypoint
+            Waypoint waypoint = currentTarget.GetComponent<Waypoint>();
+            if (waypoint != null && waypoint.nextPoint != null)
+            {
+                // Move to the next point in the chain
+                currentTarget = waypoint.nextPoint;
+                Debug.Log(gameObject.name + " reached waypoint, moving to next: " + currentTarget.name);
+                return;
+            }
 
+            // Check if current target is a junction
+            JunctionNode junction = currentTarget.GetComponent<JunctionNode>();
             if (junction != null)
             {
                 Transform nextPath = junction.GetNextPath();
@@ -41,10 +51,8 @@ public class BagMovement : MonoBehaviour
             }
             else
             {
-                // Reached a carousel - will be detected by CarouselColour script
-                // We don't destroy here anymore - let the trigger handle it
-                // But we stop moving
-                Debug.Log("BAG REACHED CAROUSEL: " + gameObject.name + " at " + currentTarget.name);
+                // Reached a carousel or end point
+                Debug.Log("BAG REACHED DESTINATION: " + gameObject.name + " at " + currentTarget.name);
                 currentTarget = null;
             }
         }
