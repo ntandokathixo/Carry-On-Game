@@ -11,7 +11,7 @@ public class InstructionsManager : MonoBehaviour
     public GameObject npcPanel;
     public TextMeshProUGUI npcMessageText;
     public Button npcButton;
-    public Button skipButton; // Drag your skip button here
+    public Button skipButton;
 
     [Header("Tutorial Bag")]
     public GameObject tutorialBagPrefab;
@@ -32,7 +32,7 @@ public class InstructionsManager : MonoBehaviour
     public string readyMessage = "Are you ready to play?\n\nBags come faster every 7 points!";
     public string gotItButtonText = "Got it!";
     public string readyButtonText = "Let's Play!";
-    public string skipButtonText = "Skip"; 
+    public string skipButtonText = "Skip";
 
     private SpawnManager spawnManager;
     private string playerName = "Player";
@@ -56,14 +56,14 @@ public class InstructionsManager : MonoBehaviour
             playerName = PlayerNameManager.Instance.CurrentPlayerName;
         }
 
-        // Check if tutorial was already skipped
-        bool tutorialSkipped = PlayerPrefs.GetInt("TutorialSkipped", 0) == 1;
+        // Check if tutorial was already skipped - COMMENT THIS OUT FOR TESTING
+        // bool tutorialSkipped = PlayerPrefs.GetInt("TutorialSkipped", 0) == 1;
 
-        if (tutorialSkipped)
-        {
-            StartRealGame();
-            return;
-        }
+        // if (tutorialSkipped)
+        // {
+        //     StartRealGame();
+        //     return;
+        // }
 
         // Store NPC panel RectTransform for sliding
         if (npcPanel != null)
@@ -78,7 +78,7 @@ public class InstructionsManager : MonoBehaviour
         // Setup skip button
         if (skipButton != null)
         {
-            // Set the button text
+            // Set button text
             TextMeshProUGUI skipButtonTextComponent = skipButton.GetComponentInChildren<TextMeshProUGUI>();
             if (skipButtonTextComponent != null)
             {
@@ -100,16 +100,19 @@ public class InstructionsManager : MonoBehaviour
             }
         }
 
+        // Stop normal spawning
         if (spawnManager != null)
         {
             spawnManager.StopSpawning();
         }
 
+        // Hide UI initially
         if (instructionsPanel != null)
             instructionsPanel.SetActive(false);
         if (npcPanel != null)
             npcPanel.SetActive(false);
 
+        // Start tutorial
         StartCoroutine(TutorialSequence());
     }
 
@@ -272,14 +275,18 @@ public class InstructionsManager : MonoBehaviour
 
     IEnumerator TutorialSequence()
     {
+        // First message - Welcome
         yield return StartCoroutine(ShowNPCMessage(string.Format(welcomeMessage, playerName) + "\n\n" + instructionMessage, gotItButtonText));
 
+        // Show instruction panel
         if (instructionsPanel != null)
             instructionsPanel.SetActive(true);
 
+        // Spawn tutorial bag
         SpawnTutorialBag();
         yield return new WaitForSeconds(1f);
 
+        // Start glowing switches
         if (switchGlowScripts.Count > 0)
         {
             currentSwitchIndex = 0;
@@ -288,20 +295,24 @@ public class InstructionsManager : MonoBehaviour
                 switchGlowScripts[0].StartGlow();
             }
 
+            // Wait for all switches to be tapped
             while (!switchesCompleted)
             {
                 yield return null;
             }
         }
 
+        // Wait for bag to reach carousel
         yield return StartCoroutine(WaitForBagToFinish());
 
+        // Success message
         yield return StartCoroutine(ShowNPCMessage(successMessage, gotItButtonText));
 
-        // Hide skip button for the final ready message
+        // Hide skip button for final message
         if (skipButton != null)
             skipButton.gameObject.SetActive(false);
 
+        // Ready message
         yield return StartCoroutine(ShowNPCMessage(readyMessage, readyButtonText));
 
         StartRealGame();

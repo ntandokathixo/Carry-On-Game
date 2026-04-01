@@ -23,6 +23,25 @@ public class GameManager : MonoBehaviour
     public Button highScorePlayAgainButton;
     public Button highScoreMenuButton;
 
+    [Header("Feedback Messages")]
+    public string[] encouragingMessages = new string[]
+    {
+        "Nice!",
+        "Good!",
+        "Keep it up!",
+        "Sharp!",
+        "Focus!",
+        "Great!"
+    };
+
+    public string[] speedIncreaseMessages = new string[]
+    {
+        "Faster!",
+        "Speed Up!",
+        "Quickening!",
+        "Intensifying!"
+    };
+
     [Header("Game Settings")]
     public string restartSceneName = "SampleScene";
     public string mainMenuSceneName = "MainMenu";
@@ -33,6 +52,7 @@ public class GameManager : MonoBehaviour
     private bool newHighScoreAchieved = false;
     private bool hasPlayedEndSound = false;
     private string playerName = "Player";
+    private int lastSpeedIncreaseScore = 0;
 
     void Start()
     {
@@ -70,18 +90,59 @@ public class GameManager : MonoBehaviour
 
         currentScore += points;
 
-        if (currentScore > personalBest)
+        // Show encouraging message
+        ShowRandomEncouragement();
+
+        // Check for speed increase (every 7 points)
+        int currentStep = currentScore / 7;
+        int lastStep = lastSpeedIncreaseScore / 7;
+
+        if (currentStep > lastStep && currentScore >= 7)
         {
-            newHighScoreAchieved = true;
+            ShowSpeedIncreaseMessage();
+            lastSpeedIncreaseScore = currentScore;
         }
 
+        // Notify SpawnManager
         SpawnManager spawner = FindObjectOfType<SpawnManager>();
         if (spawner != null)
         {
             spawner.OnScoreIncreased(currentScore);
         }
 
+        // Check for new personal best
+        if (currentScore > personalBest)
+        {
+            newHighScoreAchieved = true;
+        }
+
         UpdateInGameUI();
+    }
+
+    void ShowRandomEncouragement()
+    {
+        if (FeedbackMessage.Instance == null) return;
+
+        // Show message on scores: 1, 3, 6, 9, 12, 15...
+        if (currentScore == 1 || currentScore % 3 == 0)
+        {
+            if (encouragingMessages.Length > 0)
+            {
+                int randomIndex = Random.Range(0, encouragingMessages.Length);
+                FeedbackMessage.Instance.ShowMessage(encouragingMessages[randomIndex], new Color(0.9f, 0.9f, 0.9f));
+            }
+        }
+    }
+
+    void ShowSpeedIncreaseMessage()
+    {
+        if (FeedbackMessage.Instance == null) return;
+
+        if (speedIncreaseMessages.Length > 0)
+        {
+            int randomIndex = Random.Range(0, speedIncreaseMessages.Length);
+            FeedbackMessage.Instance.ShowMessage(speedIncreaseMessages[randomIndex], new Color(1f, 0.75f, 0.2f));
+        }
     }
 
     public void GameOver()

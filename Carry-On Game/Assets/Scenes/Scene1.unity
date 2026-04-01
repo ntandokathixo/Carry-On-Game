@@ -1810,6 +1810,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 293202769}
   m_CullTransparentMesh: 1
+--- !u!1 &299170063
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 299170065}
+  - component: {fileID: 299170064}
+  m_Layer: 0
+  m_Name: FeedbackSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &299170064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 299170063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d6e6ae274469c244a6ff22e73db5af7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  messagePrefab: {fileID: 2617304284482742907, guid: 142618c531b5f4e49a64c6a957f0e6d1, type: 3}
+  messageDuration: 1.2
+  floatUpSpeed: 30
+--- !u!4 &299170065
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 299170063}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 53.161114, y: 157.31581, z: -0.13160639}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &300288461
 GameObject:
   m_ObjectHideFlags: 0
@@ -6688,6 +6735,18 @@ MonoBehaviour:
   highScoreMessageTMP: {fileID: 0}
   highScorePlayAgainButton: {fileID: 1153810868}
   highScoreMenuButton: {fileID: 1605906917}
+  encouragingMessages:
+  - Nice!
+  - Good!
+  - Keep it up!
+  - Sharp!
+  - Focus!
+  - Great!
+  speedIncreaseMessages:
+  - Faster!
+  - Speed Up!
+  - Quickening!
+  - Intensifying!
   restartSceneName: Scene1
   mainMenuSceneName: MainMenu
 --- !u!4 &1443998787
@@ -9846,3 +9905,4 @@ SceneRoots:
   - {fileID: 331668957}
   - {fileID: 531311095}
   - {fileID: 54316391}
+  - {fileID: 299170065}
