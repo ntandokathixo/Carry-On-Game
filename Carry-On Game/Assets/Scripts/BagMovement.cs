@@ -28,7 +28,6 @@ public class BagMovement : MonoBehaviour
             Waypoint waypoint = currentTarget.GetComponent<Waypoint>();
             if (waypoint != null && waypoint.nextPoint != null)
             {
-                // Move to the next point in the chain
                 currentTarget = waypoint.nextPoint;
                 Debug.Log(gameObject.name + " reached waypoint, moving to next: " + currentTarget.name);
                 return;
@@ -51,7 +50,6 @@ public class BagMovement : MonoBehaviour
             }
             else
             {
-                // Reached a carousel or end point
                 Debug.Log("BAG REACHED DESTINATION: " + gameObject.name + " at " + currentTarget.name);
                 currentTarget = null;
             }

@@ -34,13 +34,16 @@ public class GameManager : MonoBehaviour
         "Great!"
     };
 
-    public string[] speedIncreaseMessages = new string[]
+    public string[] moreBagsMessages = new string[]
     {
-        "Faster!",
-        "Speed Up!",
-        "Quickening!",
-        "Intensifying!"
+        "More Bags Coming",
+        "Bag Overload Incoming!",
+        "It's Getting Busier!",
+        "Bags Intensifying!"
     };
+
+    [Header("Carousel Swap")]
+    public int firstSwapScore = 42;
 
     [Header("Game Settings")]
     public string restartSceneName = "SampleScene";
@@ -52,25 +55,34 @@ public class GameManager : MonoBehaviour
     private bool newHighScoreAchieved = false;
     private bool hasPlayedEndSound = false;
     private string playerName = "Player";
-    private int lastSpeedIncreaseScore = 0;
+    private int lastMoreBagsScore = 0;
+    private CarouselSwapManager swapManager;
 
     void Start()
     {
+        // Get player name
         if (PlayerNameManager.Instance != null)
         {
             playerName = PlayerNameManager.Instance.CurrentPlayerName;
         }
 
+        // Load personal best
         personalBest = PlayerPrefs.GetInt("PersonalBest", 0);
 
+        // Find swap manager
+        swapManager = FindObjectOfType<CarouselSwapManager>();
+
+        // Update UI
         UpdateInGameUI();
 
+        // Hide panels
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
 
         if (highScorePanel != null)
             highScorePanel.SetActive(false);
 
+        // Set up button listeners
         if (restartButton != null)
             restartButton.onClick.AddListener(RestartGame);
 
@@ -84,6 +96,19 @@ public class GameManager : MonoBehaviour
             highScoreMenuButton.onClick.AddListener(GoToMainMenu);
     }
 
+    void Update()
+    {
+        // Press R to reset best score
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            personalBest = 0;
+            PlayerPrefs.SetInt("PersonalBest", 0);
+            PlayerPrefs.Save();
+            UpdateInGameUI();
+            Debug.Log("Best score reset to 0");
+        }
+    }
+
     public void AddScore(int points = 1)
     {
         if (isGameOver) return;
@@ -93,14 +118,20 @@ public class GameManager : MonoBehaviour
         // Show encouraging message
         ShowRandomEncouragement();
 
-        // Check for speed increase (every 7 points)
+        // Check for more bags (every 7 points)
         int currentStep = currentScore / 7;
-        int lastStep = lastSpeedIncreaseScore / 7;
+        int lastStep = lastMoreBagsScore / 7;
 
         if (currentStep > lastStep && currentScore >= 7)
         {
-            ShowSpeedIncreaseMessage();
-            lastSpeedIncreaseScore = currentScore;
+            ShowMoreBagsMessage();
+            lastMoreBagsScore = currentScore;
+        }
+
+        // Check for carousel swap
+        if (swapManager != null)
+        {
+            swapManager.CheckForSwap(currentScore);
         }
 
         // Notify SpawnManager
@@ -134,14 +165,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void ShowSpeedIncreaseMessage()
+    void ShowMoreBagsMessage()
     {
         if (FeedbackMessage.Instance == null) return;
 
-        if (speedIncreaseMessages.Length > 0)
+        if (moreBagsMessages.Length > 0)
         {
-            int randomIndex = Random.Range(0, speedIncreaseMessages.Length);
-            FeedbackMessage.Instance.ShowMessage(speedIncreaseMessages[randomIndex], new Color(1f, 0.75f, 0.2f));
+            int randomIndex = Random.Range(0, moreBagsMessages.Length);
+            FeedbackMessage.Instance.ShowMessage(moreBagsMessages[randomIndex], new Color(1f, 0.75f, 0.2f));
         }
     }
 
@@ -241,6 +272,12 @@ public class GameManager : MonoBehaviour
 
     public void RestartGame()
     {
+        // Reset carousels before reloading
+        if (swapManager != null)
+        {
+            swapManager.ResetCarousels();
+        }
+
         SceneManager.LoadScene(restartSceneName);
     }
 

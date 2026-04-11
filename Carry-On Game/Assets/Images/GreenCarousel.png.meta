@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 4c971ad1e672c2f45be6fa720da71894
+guid: 631e589e9c3c3de42ab8853d227726ae
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5032551743998584669
-    second: Carry-On Background2_0
+      213: -1910819781522890393
+    second: GreenCarousel_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Carry-On Background2_0
+      name: GreenCarousel_0
       rect:
         serializedVersion: 2
-        x: 246
-        y: 158
-        width: 1341
-        height: 826
+        x: 1493
+        y: 768
+        width: 94
+        height: 110
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d57eec6c52737d540800000000000000
-      internalID: 5032551743998584669
+      spriteID: 761e98c58876b75e0800000000000000
+      internalID: -1910819781522890393
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Carry-On Background2_0: 5032551743998584669
+      GreenCarousel_0: -1910819781522890393
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

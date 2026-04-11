@@ -4,20 +4,170 @@ using UnityEngine;
 public class CarouselColour : MonoBehaviour
 {
     public LuggageColour expectedLuggageColour;
-    private GameManager gameManager;
+    private LuggageColour originalColour;
+
+    [Header("Visuals")]
+    public SpriteRenderer carouselSprite;
 
     [Header("Flashing Effect")]
     public int flashCount = 3;
     public float flashDuration = 0.2f;
 
+    [Header("Swap Effects")]
+    public float bounceHeight = 0.5f;
+    public float bounceDuration = 0.3f;
+    public float pulseScale = 1.3f;
+    public float pulseDuration = 0.2f;
+
+    private GameManager gameManager;
+    private bool isSwapped = false;
+    private Vector3 originalPosition;
+    private Vector3 originalScale;
+    private Quaternion originalRotation;
+    private Coroutine currentBounce;
+    private Coroutine currentPulse;
+
     void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
+        originalColour = expectedLuggageColour;
+        originalPosition = transform.position;
+        originalScale = transform.localScale;
+        originalRotation = transform.rotation;
 
-        if (gameManager == null)
+        if (carouselSprite == null)
+            carouselSprite = GetComponent<SpriteRenderer>();
+    }
+
+    public void SwapWith(CarouselColour otherCarousel)
+    {
+        // Swap the expected colours
+        LuggageColour tempColour = expectedLuggageColour;
+        expectedLuggageColour = otherCarousel.expectedLuggageColour;
+        otherCarousel.expectedLuggageColour = tempColour;
+
+        Debug.Log(gameObject.name + " swapped colours with " + otherCarousel.name);
+    }
+
+    public void StartBounce()
+    {
+        if (currentBounce != null)
         {
-            Debug.LogError("No GameManager found in scene! Please add one.");
+            StopCoroutine(currentBounce);
         }
+        currentBounce = StartCoroutine(BounceRoutine());
+    }
+
+    public void StartPulse()
+    {
+        if (currentPulse != null)
+        {
+            StopCoroutine(currentPulse);
+        }
+        currentPulse = StartCoroutine(PulseTwiceRoutine());
+    }
+
+    IEnumerator BounceRoutine()
+    {
+        float elapsedTime = 0;
+        Vector3 startPos = originalPosition;
+        Vector3 endPos = startPos + new Vector3(0, bounceHeight, 0);
+
+        while (elapsedTime < bounceDuration)
+        {
+            elapsedTime += Time.unscaledDeltaTime;
+            float t = elapsedTime / bounceDuration;
+            t = Mathf.SmoothStep(0, 1, t);
+            transform.position = Vector3.Lerp(startPos, endPos, t);
+            yield return null;
+        }
+
+        elapsedTime = 0;
+
+        while (elapsedTime < bounceDuration)
+        {
+            elapsedTime += Time.unscaledDeltaTime;
+            float t = elapsedTime / bounceDuration;
+            t = Mathf.SmoothStep(0, 1, t);
+            transform.position = Vector3.Lerp(endPos, startPos, t);
+            yield return null;
+        }
+
+        transform.position = startPos;
+        currentBounce = null;
+    }
+
+    IEnumerator PulseTwiceRoutine()
+    {
+        for (int pulseCount = 0; pulseCount < 2; pulseCount++)
+        {
+            float growTime = 0;
+            Vector3 startScale = originalScale;
+            Vector3 endScale = originalScale * pulseScale;
+
+            while (growTime < pulseDuration)
+            {
+                growTime += Time.unscaledDeltaTime;
+                float t = growTime / pulseDuration;
+                transform.localScale = Vector3.Lerp(startScale, endScale, t);
+                yield return null;
+            }
+
+            transform.localScale = endScale;
+
+            float shrinkTime = 0;
+            while (shrinkTime < pulseDuration)
+            {
+                shrinkTime += Time.unscaledDeltaTime;
+                float t = shrinkTime / pulseDuration;
+                transform.localScale = Vector3.Lerp(endScale, startScale, t);
+                yield return null;
+            }
+
+            transform.localScale = startScale;
+
+            if (pulseCount == 0)
+            {
+                yield return new WaitForSecondsRealtime(0.15f);
+            }
+        }
+
+        currentPulse = null;
+    }
+
+    public void ResetToOriginal()
+    {
+        expectedLuggageColour = originalColour;
+        isSwapped = false;
+
+        transform.position = originalPosition;
+        transform.localScale = originalScale;
+        transform.rotation = originalRotation;
+
+        if (currentBounce != null)
+        {
+            StopCoroutine(currentBounce);
+            currentBounce = null;
+        }
+
+        if (currentPulse != null)
+        {
+            StopCoroutine(currentPulse);
+            currentPulse = null;
+        }
+
+        if (carouselSprite != null)
+            carouselSprite.color = Color.white;
+    }
+
+    public bool IsSwapped()
+    {
+        return isSwapped;
+    }
+
+    public LuggageColour GetOriginalColour()
+    {
+        return originalColour;
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -26,21 +176,16 @@ public class CarouselColour : MonoBehaviour
             return;
 
         BagColour bag = other.GetComponent<BagColour>();
-
         if (bag == null) return;
 
         if (bag.luggageColour == expectedLuggageColour)
         {
-            // CORRECT MATCH
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlayCorrect();
 
-            // Trigger glow on this carousel
             GlowEffect glow = GetComponent<GlowEffect>();
             if (glow != null)
                 glow.PlayGlow();
-
-            Debug.Log("CORRECT! " + bag.luggageColour + " matches " + expectedLuggageColour);
 
             if (gameManager != null && !gameManager.IsGameOver())
             {
@@ -51,29 +196,20 @@ public class CarouselColour : MonoBehaviour
         }
         else
         {
-            Debug.Log(" WRONG! Bag is " + bag.luggageColour + " but carousel expects " + expectedLuggageColour);
-
-            // Get the bag's sprite renderer for flashing effect
             SpriteRenderer sr = other.GetComponent<SpriteRenderer>();
 
-            // Start flashing effect (sound will be handled after we know if it's a high score)
             if (sr != null)
             {
                 StartCoroutine(FlashBag(sr, other.gameObject));
             }
             else
             {
-                // If no sprite renderer, just stop the bag
                 BagMovement bagMove = other.GetComponent<BagMovement>();
                 if (bagMove != null)
-                {
                     bagMove.enabled = false;
-                }
 
-                // Stop all other bags
                 StopAllBags();
 
-                // Check if it's a high score and play appropriate sound
                 if (gameManager != null && !gameManager.IsGameOver())
                 {
                     CheckAndPlayGameOverSound();
@@ -85,32 +221,22 @@ public class CarouselColour : MonoBehaviour
 
     IEnumerator FlashBag(SpriteRenderer sr, GameObject bagObject)
     {
-        // Store original color
         Color originalColor = sr.color;
 
-        // Stop the bag from moving
         BagMovement bagMove = bagObject.GetComponent<BagMovement>();
         if (bagMove != null)
-        {
             bagMove.enabled = false;
-        }
 
-        // Stop all other bags
         StopAllBags();
 
-        // Flash the bag red multiple times
         for (int i = 0; i < flashCount; i++)
         {
-            // Turn red
             sr.color = Color.red;
             yield return new WaitForSeconds(flashDuration);
-
-            // Back to original color
             sr.color = originalColor;
             yield return new WaitForSeconds(flashDuration);
         }
 
-        // Check if it's a high score and play appropriate sound
         if (gameManager != null && !gameManager.IsGameOver())
         {
             CheckAndPlayGameOverSound();
@@ -120,44 +246,23 @@ public class CarouselColour : MonoBehaviour
 
     void CheckAndPlayGameOverSound()
     {
-        // Check if this will be a new high score
         bool isNewHighScore = false;
         if (gameManager != null)
         {
-            // Get current score from game manager
-            int currentScore = GetCurrentScoreFromGameManager();
+            int currentScore = gameManager.GetCurrentScore();
             int personalBest = PlayerPrefs.GetInt("PersonalBest", 0);
 
             if (currentScore > personalBest)
-            {
                 isNewHighScore = true;
-            }
         }
 
-        // Play the appropriate sound
         if (AudioManager.Instance != null)
         {
             if (isNewHighScore)
-            {
                 AudioManager.Instance.PlayNewHighScore();
-                Debug.Log("Playing new high score sound");
-            }
             else
-            {
                 AudioManager.Instance.PlayWrongEmergency();
-                Debug.Log("Playing wrong sound");
-            }
         }
-    }
-
-    int GetCurrentScoreFromGameManager()
-    {
-        // You'll need to add a public property to GameManager to get current score
-        if (gameManager != null)
-        {
-            return gameManager.GetCurrentScore();
-        }
-        return 0;
     }
 
     void StopAllBags()
@@ -166,22 +271,15 @@ public class CarouselColour : MonoBehaviour
         foreach (BagMovement bag in allBags)
         {
             if (bag != null)
-            {
                 bag.enabled = false;
-            }
         }
-        Debug.Log("All bags stopped");
     }
 
     IEnumerator DelayedGameOver()
     {
-        // Wait a moment after flashing before showing game over
         yield return new WaitForSeconds(0.5f);
 
-        // Now trigger game over
         if (gameManager != null)
-        {
             gameManager.GameOver();
-        }
     }
 }

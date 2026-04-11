@@ -140,6 +140,14 @@ public class AudioManager : MonoBehaviour
             sfxSource.PlayOneShot(newHighScoreSound);
     }
 
+    public void PlaySound(AudioClip clip)
+    {
+        if (sfxSource != null && clip != null)
+        {
+            sfxSource.PlayOneShot(clip);
+        }
+    }
+
     public void StopMusic()
     {
         if (musicSource != null)
@@ -181,4 +189,5 @@ public class AudioManager : MonoBehaviour
             sfxSource.mute = !enabled;
         }
     }
+
 }
