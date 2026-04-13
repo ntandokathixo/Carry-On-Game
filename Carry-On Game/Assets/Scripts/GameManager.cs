@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
     [Header("High Score Celebration Panel")]
     public GameObject highScorePanel;
     public TextMeshProUGUI highScoreMessageTMP;
+    public TextMeshProUGUI highScoreValueTMP;
     public Button highScorePlayAgainButton;
     public Button highScoreMenuButton;
 
@@ -207,6 +208,10 @@ public class GameManager : MonoBehaviour
 
     void ShowHighScoreCelebration()
     {
+        Debug.Log("=== SHOW HIGH SCORE CELEBRATION ===");
+        Debug.Log("Player name: " + playerName);
+        Debug.Log("Current score: " + currentScore);
+
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
 
@@ -214,11 +219,22 @@ public class GameManager : MonoBehaviour
         {
             highScorePanel.SetActive(true);
 
-            string celebrationMessage = "You're so sharp " + playerName + "! You have a new high score of " + personalBest + "!";
+            string celebrationMessage = "You're so sharp " + playerName + "! You have a new high score of";
 
             if (highScoreMessageTMP != null)
             {
                 highScoreMessageTMP.text = celebrationMessage;
+            }
+
+            // Update the value text with the actual score
+            if (highScoreValueTMP != null)
+            {
+                highScoreValueTMP.text = currentScore.ToString();
+                Debug.Log("Set value text to: " + currentScore);
+            }
+            else
+            {
+                Debug.LogError("highScoreValueTMP is not assigned!");
             }
         }
 

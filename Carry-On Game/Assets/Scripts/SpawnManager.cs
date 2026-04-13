@@ -9,7 +9,7 @@ public class SpawnManager : MonoBehaviour
     public Transform firstJunction;
 
     public float startDelay = 2f;
-    public float baseSpawnInterval = 3f;
+    public float baseSpawnInterval = 4f;
     public float minSpawnInterval = 1f;
     public int pointsPerDifficultyIncrease = 7;
     public float minDistanceFromSpawn = 1.5f;
@@ -19,6 +19,10 @@ public class SpawnManager : MonoBehaviour
     private float currentSpawnInterval;
     private bool isSpawning = false;
     private GameManager gameManager;
+
+    [Header("Busyness Meter")]
+    public int totalBagsSpawned = 0;
+    public int bagsForMaxBusyness = 35;
 
     void Start()
     {
@@ -33,6 +37,11 @@ public class SpawnManager : MonoBehaviour
                 activeBagCount[bagColour.luggageColour] = 0;
             }
         }
+    }
+
+    public int GetTotalBagsSpawned()
+    {
+        return totalBagsSpawned;
     }
 
     public void EnableSpawning()
@@ -56,7 +65,10 @@ public class SpawnManager : MonoBehaviour
             yield return new WaitForSeconds(currentSpawnInterval);
         }
     }
-
+    public float GetCurrentSpawnInterval()
+    {
+        return currentSpawnInterval;
+    }
     IEnumerator WaitForSpawnPointClear()
     {
         bool isClear = false;
@@ -127,6 +139,14 @@ public class SpawnManager : MonoBehaviour
         if (bagMove != null)
         {
             bagMove.currentTarget = firstJunction;
+        }
+
+        totalBagsSpawned++;
+
+        BusynessMeter meter = FindObjectOfType<BusynessMeter>();
+        if (meter != null)
+        {
+            meter.OnBagSpawned(totalBagsSpawned);
         }
     }
 

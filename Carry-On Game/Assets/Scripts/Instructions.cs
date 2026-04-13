@@ -11,6 +11,7 @@ public class InstructionsManager : MonoBehaviour
     public GameObject npcPanel;
     public TextMeshProUGUI npcMessageText;
     public Button npcButton;
+    public Button successButton;
     public Button skipButton;
 
     [Header("Tutorial Bag")]
@@ -31,6 +32,7 @@ public class InstructionsManager : MonoBehaviour
     public string successMessage = "You got it!";
     public string readyMessage = "Are you ready to play?\n\nBags come faster every 7 points!";
     public string gotItButtonText = "Got it!";
+    public string successButtonText = "Next";
     public string readyButtonText = "Let's Play!";
     public string skipButtonText = "Skip";
 
@@ -56,15 +58,6 @@ public class InstructionsManager : MonoBehaviour
             playerName = PlayerNameManager.Instance.CurrentPlayerName;
         }
 
-        // Check if tutorial was already skipped - COMMENT THIS OUT FOR TESTING
-        // bool tutorialSkipped = PlayerPrefs.GetInt("TutorialSkipped", 0) == 1;
-
-        // if (tutorialSkipped)
-        // {
-        //     StartRealGame();
-        //     return;
-        // }
-
         // Store NPC panel RectTransform for sliding
         if (npcPanel != null)
         {
@@ -78,7 +71,6 @@ public class InstructionsManager : MonoBehaviour
         // Setup skip button
         if (skipButton != null)
         {
-            // Set button text
             TextMeshProUGUI skipButtonTextComponent = skipButton.GetComponentInChildren<TextMeshProUGUI>();
             if (skipButtonTextComponent != null)
             {
@@ -120,41 +112,35 @@ public class InstructionsManager : MonoBehaviour
     {
         Debug.Log("Skip Tutorial button pressed - starting game immediately");
 
-        // Save that tutorial was skipped
         PlayerPrefs.SetInt("TutorialSkipped", 1);
         PlayerPrefs.Save();
 
-        // Stop any ongoing coroutines
         if (currentMessageCoroutine != null)
         {
             StopCoroutine(currentMessageCoroutine);
         }
 
-        // Clean up tutorial
         if (currentTutorialBag != null)
             Destroy(currentTutorialBag);
 
-        // Hide all panels
         if (instructionsPanel != null)
             instructionsPanel.SetActive(false);
         if (npcPanel != null)
             npcPanel.SetActive(false);
 
-        // Stop all glows
         foreach (JunctionGlow glow in switchGlowScripts)
         {
             if (glow != null) glow.StopGlow();
         }
 
-        // Start the real game
         StartRealGame();
     }
 
-    IEnumerator ShowNPCMessage(string message, string buttonText)
+    IEnumerator ShowNPCMessage(string message, string buttonText, Button targetButton)
     {
         if (npcPanel != null)
         {
-            currentMessageCoroutine = StartCoroutine(ShowMessageInternal(message, buttonText));
+            currentMessageCoroutine = StartCoroutine(ShowMessageInternal(message, buttonText, targetButton));
             yield return currentMessageCoroutine;
             currentMessageCoroutine = null;
         }
@@ -162,48 +148,49 @@ public class InstructionsManager : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
     }
 
-    IEnumerator ShowMessageInternal(string message, string buttonText)
+    IEnumerator ShowMessageInternal(string message, string buttonText, Button targetButton)
     {
-        // Set position to start off-screen
         npcRectTransform.anchoredPosition = npcStartPosition;
         npcPanel.SetActive(true);
 
         if (npcMessageText != null)
             npcMessageText.text = message;
 
-        if (npcButton != null)
-        {
-            TextMeshProUGUI buttonTextComponent = npcButton.GetComponentInChildren<TextMeshProUGUI>();
-            if (buttonTextComponent != null)
-                buttonTextComponent.text = buttonText;
+        // Hide both buttons first
+        npcButton.gameObject.SetActive(false);
+        if (successButton != null)
+            successButton.gameObject.SetActive(false);
 
-            npcButton.onClick.RemoveAllListeners();
-        }
+        // Show only the target button
+        targetButton.gameObject.SetActive(true);
 
-        // Make sure skip button is visible
+        // Set button text
+        TextMeshProUGUI buttonTextComponent = targetButton.GetComponentInChildren<TextMeshProUGUI>();
+        if (buttonTextComponent != null)
+            buttonTextComponent.text = buttonText;
+
+        targetButton.onClick.RemoveAllListeners();
+
         if (skipButton != null)
             skipButton.gameObject.SetActive(true);
 
-        // Slide in
         yield return StartCoroutine(SlideInPanel());
 
-        // Wait for button click
         bool buttonClicked = false;
         UnityEngine.Events.UnityAction clickAction = null;
 
         clickAction = () => {
             buttonClicked = true;
-            npcButton.onClick.RemoveListener(clickAction);
+            targetButton.onClick.RemoveListener(clickAction);
         };
 
-        npcButton.onClick.AddListener(clickAction);
+        targetButton.onClick.AddListener(clickAction);
 
         while (!buttonClicked)
         {
             yield return null;
         }
 
-        // Slide out
         yield return StartCoroutine(SlideOutPanel());
 
         npcPanel.SetActive(false);
@@ -215,7 +202,7 @@ public class InstructionsManager : MonoBehaviour
 
         while (elapsedTime < slideDuration)
         {
-            elapsedTime += Time.deltaTime;
+            elapsedTime += Time.unscaledDeltaTime;
             float t = elapsedTime / slideDuration;
             t = Mathf.SmoothStep(0, 1, t);
             npcRectTransform.anchoredPosition = Vector2.Lerp(npcStartPosition, npcTargetPosition, t);
@@ -231,7 +218,7 @@ public class InstructionsManager : MonoBehaviour
 
         while (elapsedTime < slideDuration)
         {
-            elapsedTime += Time.deltaTime;
+            elapsedTime += Time.unscaledDeltaTime;
             float t = elapsedTime / slideDuration;
             t = Mathf.SmoothStep(0, 1, t);
             npcRectTransform.anchoredPosition = Vector2.Lerp(npcTargetPosition, npcStartPosition, t);
@@ -271,51 +258,6 @@ public class InstructionsManager : MonoBehaviour
                 }
             }
         }
-    }
-
-    IEnumerator TutorialSequence()
-    {
-        // First message - Welcome
-        yield return StartCoroutine(ShowNPCMessage(string.Format(welcomeMessage, playerName) + "\n\n" + instructionMessage, gotItButtonText));
-
-        // Show instruction panel
-        if (instructionsPanel != null)
-            instructionsPanel.SetActive(true);
-
-        // Spawn tutorial bag
-        SpawnTutorialBag();
-        yield return new WaitForSeconds(1f);
-
-        // Start glowing switches
-        if (switchGlowScripts.Count > 0)
-        {
-            currentSwitchIndex = 0;
-            if (switchGlowScripts[0] != null)
-            {
-                switchGlowScripts[0].StartGlow();
-            }
-
-            // Wait for all switches to be tapped
-            while (!switchesCompleted)
-            {
-                yield return null;
-            }
-        }
-
-        // Wait for bag to reach carousel
-        yield return StartCoroutine(WaitForBagToFinish());
-
-        // Success message
-        yield return StartCoroutine(ShowNPCMessage(successMessage, gotItButtonText));
-
-        // Hide skip button for final message
-        if (skipButton != null)
-            skipButton.gameObject.SetActive(false);
-
-        // Ready message
-        yield return StartCoroutine(ShowNPCMessage(readyMessage, readyButtonText));
-
-        StartRealGame();
     }
 
     void SpawnTutorialBag()
@@ -380,6 +322,50 @@ public class InstructionsManager : MonoBehaviour
         }
 
         yield return new WaitForSeconds(0.5f);
+    }
+
+    IEnumerator TutorialSequence()
+    {
+        // First message - Welcome (uses npcButton)
+        yield return StartCoroutine(ShowNPCMessage(string.Format(welcomeMessage, playerName) + "\n\n" + instructionMessage, gotItButtonText, npcButton));
+
+        // Show instruction panel
+        if (instructionsPanel != null)
+            instructionsPanel.SetActive(true);
+
+        // Spawn tutorial bag
+        SpawnTutorialBag();
+        yield return new WaitForSeconds(1f);
+
+        // Start glowing switches
+        if (switchGlowScripts.Count > 0)
+        {
+            currentSwitchIndex = 0;
+            if (switchGlowScripts[0] != null)
+            {
+                switchGlowScripts[0].StartGlow();
+            }
+
+            while (!switchesCompleted)
+            {
+                yield return null;
+            }
+        }
+
+        // Wait for bag to reach carousel
+        yield return StartCoroutine(WaitForBagToFinish());
+
+        // Success message - uses successButton
+        yield return StartCoroutine(ShowNPCMessage(successMessage, successButtonText, successButton));
+
+        // Hide skip button for final message
+        if (skipButton != null)
+            skipButton.gameObject.SetActive(false);
+
+        // Ready message - uses npcButton
+        yield return StartCoroutine(ShowNPCMessage(readyMessage, readyButtonText, npcButton));
+
+        StartRealGame();
     }
 
     void StartRealGame()

@@ -237,31 +237,55 @@ public class CarouselSwapManager : MonoBehaviour
             npcAnnouncementPanel.SetActive(true);
             if (announcementText != null)
             {
-                announcementText.text = "CAROUSEL SWAP!\nCarousels are moving positions!";
+                announcementText.text = "CAROUSEL SWAP!\nLook out! Carousels are moving positions!";
             }
 
             RectTransform rect = npcAnnouncementPanel.GetComponent<RectTransform>();
-            Vector2 startPos = new Vector2(-Screen.width, rect.anchoredPosition.y);
+
+            // Store the target position (where it should end up)
             Vector2 endPos = rect.anchoredPosition;
+
+            // Calculate start position off-screen (left side)
+            Vector2 startPos = new Vector2(-Screen.width, endPos.y);
+
+            // Set to start position
             rect.anchoredPosition = startPos;
 
+            // Slide in
+            float slideInDuration = 0.3f;
             float elapsedTime = 0;
-            float slideDuration = 0.3f;
 
-            while (elapsedTime < slideDuration)
+            while (elapsedTime < slideInDuration)
             {
                 elapsedTime += Time.unscaledDeltaTime;
-                float t = elapsedTime / slideDuration;
+                float t = elapsedTime / slideInDuration;
+                t = Mathf.SmoothStep(0, 1, t);
                 rect.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
                 yield return null;
             }
 
             rect.anchoredPosition = endPos;
 
+            // Wait for the pause duration
             yield return new WaitForSecondsRealtime(pauseDuration);
+
+            // Slide out
+            float slideOutDuration = 0.3f;
+            elapsedTime = 0;
+
+            while (elapsedTime < slideOutDuration)
+            {
+                elapsedTime += Time.unscaledDeltaTime;
+                float t = elapsedTime / slideOutDuration;
+                t = Mathf.SmoothStep(0, 1, t);
+                rect.anchoredPosition = Vector2.Lerp(endPos, startPos, t);
+                yield return null;
+            }
+
+            rect.anchoredPosition = startPos;
+            npcAnnouncementPanel.SetActive(false);
         }
     }
-
     IEnumerator SwapCarouselPositions()
     {
         for (int i = 0; i < carouselsToSwap.Count; i += 2)
