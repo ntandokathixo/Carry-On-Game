@@ -2586,11 +2586,11 @@ MonoBehaviour:
   firstJunction: {fileID: 1102504066}
   startDelay: 1
   baseSpawnInterval: 4
-  minSpawnInterval: 1.5
+  minSpawnInterval: 2
   pointsPerDifficultyIncrease: 7
   minDistanceFromSpawn: 1.5
   totalBagsSpawned: 0
-  bagsForMaxBusyness: 35
+  bagsForMaxBusyness: 42
 --- !u!4 &403314960
 Transform:
   m_ObjectHideFlags: 0
@@ -5794,7 +5794,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 305.6, y: 333.4}
+  m_AnchoredPosition: {x: 349.4, y: 328.4}
   m_SizeDelta: {x: 0, y: -493.385}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1222497453
