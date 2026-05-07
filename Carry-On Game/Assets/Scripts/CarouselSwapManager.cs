@@ -133,6 +133,12 @@ public class CarouselSwapManager : MonoBehaviour
         // Wait a moment for swap to complete
         yield return new WaitForSecondsRealtime(0.5f);
 
+        // Notify GameManager that a swap occurred (for session tracking)
+        if (gameManager != null)
+        {
+            gameManager.IncrementSwapsSurvived();
+        }
+
         if (npcAnnouncementPanel != null)
             npcAnnouncementPanel.SetActive(false);
 
@@ -286,6 +292,7 @@ public class CarouselSwapManager : MonoBehaviour
             npcAnnouncementPanel.SetActive(false);
         }
     }
+
     IEnumerator SwapCarouselPositions()
     {
         for (int i = 0; i < carouselsToSwap.Count; i += 2)

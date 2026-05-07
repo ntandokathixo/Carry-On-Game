@@ -5,6 +5,7 @@ public class BusynessMeter : MonoBehaviour
 {
     [Header("References")]
     public SpawnManager spawnManager;
+    public GameManager gameManager;
     public Image fillBar;
 
     [Header("Colors")]
@@ -14,17 +15,20 @@ public class BusynessMeter : MonoBehaviour
     public Color maxColor = Color.red;
 
     [Header("Settings")]
-    public int bagsForMaxBusyness = 35; // At 35 bags spawned, bar is full
+    public float baseSpawnInterval = 4f;
+    public float minSpawnInterval = 2.8f;
 
     private float targetFill = 0f;
     private float currentFill = 0f;
     public float smoothSpeed = 5f;
-    private int lastBagCount = 0;
 
     void Start()
     {
         if (spawnManager == null)
             spawnManager = FindObjectOfType<SpawnManager>();
+
+        if (gameManager == null)
+            gameManager = FindObjectOfType<GameManager>();
 
         if (fillBar != null)
             fillBar.fillAmount = 0f;
@@ -34,14 +38,13 @@ public class BusynessMeter : MonoBehaviour
     {
         if (spawnManager == null) return;
 
-        int totalBags = spawnManager.GetTotalBagsSpawned();
+        // Get current spawn interval directly
+        float currentInterval = spawnManager.GetCurrentSpawnInterval();
 
-        // Only update when bag count changes
-        if (totalBags != lastBagCount)
-        {
-            lastBagCount = totalBags;
-            targetFill = Mathf.Clamp01((float)totalBags / bagsForMaxBusyness);
-        }
+        // Calculate busyness based on spawn interval
+        // 0% = base interval (4.0s), 100% = min interval (2.8s)
+        float busyness = 1f - ((currentInterval - minSpawnInterval) / (baseSpawnInterval - minSpawnInterval));
+        targetFill = Mathf.Clamp01(busyness);
 
         // Smooth animation
         currentFill = Mathf.Lerp(currentFill, targetFill, Time.deltaTime * smoothSpeed);
@@ -60,11 +63,5 @@ public class BusynessMeter : MonoBehaviour
             else
                 fillBar.color = maxColor;
         }
-    }
-
-    // Called by SpawnManager when a bag spawns
-    public void OnBagSpawned(int totalBags)
-    {
-        targetFill = Mathf.Clamp01((float)totalBags / bagsForMaxBusyness);
     }
 }

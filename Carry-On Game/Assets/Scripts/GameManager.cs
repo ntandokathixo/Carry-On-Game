@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -50,6 +51,22 @@ public class GameManager : MonoBehaviour
     public string restartSceneName = "SampleScene";
     public string mainMenuSceneName = "MainMenu";
 
+    [Header("Lives System")]
+    public int currentLives = 3;
+    public int maxLives = 3;
+    public TextMeshProUGUI livesText;
+    public GameObject livesTagPanel;
+    public AudioClip lifeLostSound;
+
+    [Header("Session Summary")]
+    public GameObject sessionSummaryPanel;
+    public TextMeshProUGUI summaryScoreText;
+    public TextMeshProUGUI summaryBestText;
+    public TextMeshProUGUI summaryLivesText;
+    public TextMeshProUGUI summarySwapsText;
+    public TextMeshProUGUI summaryStreakText;
+    public TextMeshProUGUI summaryBagsText;
+
     private int currentScore = 0;
     private int personalBest = 0;
     private bool isGameOver = false;
@@ -59,31 +76,38 @@ public class GameManager : MonoBehaviour
     private int lastMoreBagsScore = 0;
     private CarouselSwapManager swapManager;
 
+    // Session tracking variables
+    private int sessionBestScore = 0;
+    private int sessionSwapsSurvived = 0;
+    private int sessionLongestStreak = 0;
+    private int currentStreak = 0;
+    private int totalBagsSorted = 0;
+
     void Start()
     {
-        // Get player name
         if (PlayerNameManager.Instance != null)
         {
             playerName = PlayerNameManager.Instance.CurrentPlayerName;
         }
 
-        // Load personal best
         personalBest = PlayerPrefs.GetInt("PersonalBest", 0);
-
-        // Find swap manager
         swapManager = FindObjectOfType<CarouselSwapManager>();
 
-        // Update UI
+        currentLives = maxLives;
+        UpdateLivesUI();
+
+        ResetSessionStats();
         UpdateInGameUI();
 
-        // Hide panels
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
 
         if (highScorePanel != null)
             highScorePanel.SetActive(false);
 
-        // Set up button listeners
+        if (sessionSummaryPanel != null)
+            sessionSummaryPanel.SetActive(false);
+
         if (restartButton != null)
             restartButton.onClick.AddListener(RestartGame);
 
@@ -99,7 +123,6 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        // Press R to reset best score
         if (Input.GetKeyDown(KeyCode.R))
         {
             personalBest = 0;
@@ -110,16 +133,31 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    void ResetSessionStats()
+    {
+        sessionBestScore = 0;
+        sessionSwapsSurvived = 0;
+        sessionLongestStreak = 0;
+        currentStreak = 0;
+        totalBagsSorted = 0;
+    }
+
     public void AddScore(int points = 1)
     {
         if (isGameOver) return;
 
         currentScore += points;
+        totalBagsSorted++;
 
-        // Show encouraging message
+        // Track streak
+        currentStreak++;
+        if (currentStreak > sessionLongestStreak)
+        {
+            sessionLongestStreak = currentStreak;
+        }
+
         ShowRandomEncouragement();
 
-        // Check for more bags (every 7 points)
         int currentStep = currentScore / 7;
         int lastStep = lastMoreBagsScore / 7;
 
@@ -129,23 +167,26 @@ public class GameManager : MonoBehaviour
             lastMoreBagsScore = currentScore;
         }
 
-        // Check for carousel swap
         if (swapManager != null)
         {
             swapManager.CheckForSwap(currentScore);
         }
 
-        // Notify SpawnManager
         SpawnManager spawner = FindObjectOfType<SpawnManager>();
         if (spawner != null)
         {
             spawner.OnScoreIncreased(currentScore);
         }
 
-        // Check for new personal best
         if (currentScore > personalBest)
         {
             newHighScoreAchieved = true;
+        }
+
+        // Track session best
+        if (currentScore > sessionBestScore)
+        {
+            sessionBestScore = currentScore;
         }
 
         UpdateInGameUI();
@@ -155,7 +196,6 @@ public class GameManager : MonoBehaviour
     {
         if (FeedbackMessage.Instance == null) return;
 
-        // Show message on scores: 1, 3, 6, 9, 12, 15...
         if (currentScore == 1 || currentScore % 3 == 0)
         {
             if (encouragingMessages.Length > 0)
@@ -177,6 +217,68 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void LoseLife()
+    {
+        if (isGameOver) return;
+
+        // Reset streak on mistake
+        currentStreak = 0;
+
+        currentLives--;
+        UpdateLivesUI();
+
+        if (AudioManager.Instance != null && lifeLostSound != null)
+        {
+            AudioManager.Instance.PlaySound(lifeLostSound);
+        }
+
+        Debug.Log("Life lost. Remaining: " + currentLives);
+
+        if (currentLives <= 0)
+        {
+            GameOver();
+        }
+    }
+
+    void UpdateLivesUI()
+    {
+        if (livesText != null)
+        {
+            livesText.text = currentLives.ToString();
+        }
+    }
+
+    public void IncrementSwapsSurvived()
+    {
+        sessionSwapsSurvived++;
+    }
+
+    void UpdateSessionSummary()
+    {
+        if (sessionSummaryPanel == null) return;
+
+        if (summaryScoreText != null)
+            summaryScoreText.text = "Score: " + currentScore;
+
+        if (summaryBestText != null)
+        {
+            bool isNewRecord = currentScore > personalBest;
+            summaryBestText.text = "Best: " + personalBest ;
+        }
+
+        if (summaryLivesText != null)
+            summaryLivesText.text = "Lives left: " + currentLives;
+
+        if (summarySwapsText != null)
+            summarySwapsText.text = "Carousel swaps: " + sessionSwapsSurvived;
+
+        if (summaryStreakText != null)
+            summaryStreakText.text = "Longest streak: " + sessionLongestStreak;
+
+        if (summaryBagsText != null)
+            summaryBagsText.text = "Bags sorted: " + totalBagsSorted;
+    }
+
     public void GameOver()
     {
         if (isGameOver) return;
@@ -188,7 +290,16 @@ public class GameManager : MonoBehaviour
             AudioManager.Instance.StopMusic();
         }
 
-        if (newHighScoreAchieved)
+        // Check achievements first
+        if (AchievementLog.Instance != null)
+        {
+            AchievementLog.Instance.CheckAchievements(currentScore, sessionSwapsSurvived, sessionLongestStreak, currentLives);
+        }
+
+        // Update summary panel with final stats
+        UpdateSessionSummary();
+
+        if (currentScore > personalBest)
         {
             personalBest = currentScore;
             PlayerPrefs.SetInt("PersonalBest", personalBest);
@@ -204,37 +315,30 @@ public class GameManager : MonoBehaviour
         {
             ShowGameOverPanel();
         }
+
+        StopGameSystems();
     }
 
     void ShowHighScoreCelebration()
     {
-        Debug.Log("=== SHOW HIGH SCORE CELEBRATION ===");
-        Debug.Log("Player name: " + playerName);
-        Debug.Log("Current score: " + currentScore);
-
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
+
+        if (sessionSummaryPanel != null)
+            sessionSummaryPanel.SetActive(true);
 
         if (highScorePanel != null)
         {
             highScorePanel.SetActive(true);
 
-            string celebrationMessage = "You're so sharp " + playerName + "! You have a new high score of";
-
             if (highScoreMessageTMP != null)
             {
-                highScoreMessageTMP.text = celebrationMessage;
+                highScoreMessageTMP.text = "You're so sharp " + playerName + "! You have a new high score of";
             }
 
-            // Update the value text with the actual score
             if (highScoreValueTMP != null)
             {
                 highScoreValueTMP.text = currentScore.ToString();
-                Debug.Log("Set value text to: " + currentScore);
-            }
-            else
-            {
-                Debug.LogError("highScoreValueTMP is not assigned!");
             }
         }
 
@@ -245,6 +349,9 @@ public class GameManager : MonoBehaviour
     {
         if (highScorePanel != null)
             highScorePanel.SetActive(false);
+
+        if (sessionSummaryPanel != null)
+            sessionSummaryPanel.SetActive(true);
 
         if (gameOverPanel != null)
         {
@@ -288,7 +395,6 @@ public class GameManager : MonoBehaviour
 
     public void RestartGame()
     {
-        // Reset carousels before reloading
         if (swapManager != null)
         {
             swapManager.ResetCarousels();
@@ -315,5 +421,10 @@ public class GameManager : MonoBehaviour
     public bool HasPlayedEndSound()
     {
         return hasPlayedEndSound;
+    }
+
+    public void OnCarouselSwapOccurred()
+    {
+        sessionSwapsSurvived++;
     }
 }

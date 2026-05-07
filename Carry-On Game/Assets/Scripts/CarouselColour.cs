@@ -41,7 +41,6 @@ public class CarouselColour : MonoBehaviour
 
     public void SwapWith(CarouselColour otherCarousel)
     {
-        // Swap the expected colours
         LuggageColour tempColour = expectedLuggageColour;
         expectedLuggageColour = otherCarousel.expectedLuggageColour;
         otherCarousel.expectedLuggageColour = tempColour;
@@ -175,11 +174,16 @@ public class CarouselColour : MonoBehaviour
         if (gameManager != null && gameManager.IsGameOver())
             return;
 
+        // Check if other object still exists
+        if (other == null || other.gameObject == null)
+            return;
+
         BagColour bag = other.GetComponent<BagColour>();
         if (bag == null) return;
 
         if (bag.luggageColour == expectedLuggageColour)
         {
+            // CORRECT
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlayCorrect();
 
@@ -196,90 +200,50 @@ public class CarouselColour : MonoBehaviour
         }
         else
         {
-            SpriteRenderer sr = other.GetComponent<SpriteRenderer>();
+            // WRONG - Lose a life
+            Debug.Log("WRONG! Bag is " + bag.luggageColour + " but carousel expects " + expectedLuggageColour);
 
+            // Flash the bag red before destroying
+            SpriteRenderer sr = other.GetComponent<SpriteRenderer>();
             if (sr != null)
             {
-                StartCoroutine(FlashBag(sr, other.gameObject));
+                StartCoroutine(FlashAndDestroy(sr, other.gameObject));
             }
             else
             {
-                BagMovement bagMove = other.GetComponent<BagMovement>();
-                if (bagMove != null)
-                    bagMove.enabled = false;
-
-                StopAllBags();
-
+                // Tell game manager to lose a life
                 if (gameManager != null && !gameManager.IsGameOver())
                 {
-                    CheckAndPlayGameOverSound();
-                    StartCoroutine(DelayedGameOver());
+                    gameManager.LoseLife();
                 }
+                Destroy(other.gameObject);
             }
         }
     }
 
-    IEnumerator FlashBag(SpriteRenderer sr, GameObject bagObject)
+    IEnumerator FlashAndDestroy(SpriteRenderer sr, GameObject bagObject)
     {
         Color originalColor = sr.color;
 
-        BagMovement bagMove = bagObject.GetComponent<BagMovement>();
-        if (bagMove != null)
-            bagMove.enabled = false;
-
-        StopAllBags();
-
-        for (int i = 0; i < flashCount; i++)
+        // Flash red 3 times quickly
+        for (int i = 0; i < 3; i++)
         {
-            sr.color = Color.red;
-            yield return new WaitForSeconds(flashDuration);
-            sr.color = originalColor;
-            yield return new WaitForSeconds(flashDuration);
+            if (sr != null)
+                sr.color = Color.red;
+            yield return new WaitForSeconds(0.1f);
+            if (sr != null)
+                sr.color = originalColor;
+            yield return new WaitForSeconds(0.1f);
         }
 
+        // Tell game manager to lose a life
         if (gameManager != null && !gameManager.IsGameOver())
         {
-            CheckAndPlayGameOverSound();
-            StartCoroutine(DelayedGameOver());
-        }
-    }
-
-    void CheckAndPlayGameOverSound()
-    {
-        bool isNewHighScore = false;
-        if (gameManager != null)
-        {
-            int currentScore = gameManager.GetCurrentScore();
-            int personalBest = PlayerPrefs.GetInt("PersonalBest", 0);
-
-            if (currentScore > personalBest)
-                isNewHighScore = true;
+            gameManager.LoseLife();
         }
 
-        if (AudioManager.Instance != null)
-        {
-            if (isNewHighScore)
-                AudioManager.Instance.PlayNewHighScore();
-            else
-                AudioManager.Instance.PlayWrongEmergency();
-        }
-    }
-
-    void StopAllBags()
-    {
-        BagMovement[] allBags = FindObjectsOfType<BagMovement>();
-        foreach (BagMovement bag in allBags)
-        {
-            if (bag != null)
-                bag.enabled = false;
-        }
-    }
-
-    IEnumerator DelayedGameOver()
-    {
-        yield return new WaitForSeconds(0.5f);
-
-        if (gameManager != null)
-            gameManager.GameOver();
+        // Destroy the bag
+        if (bagObject != null)
+            Destroy(bagObject);
     }
 }

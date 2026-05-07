@@ -10,19 +10,19 @@ public class SpawnManager : MonoBehaviour
 
     public float startDelay = 2f;
     public float baseSpawnInterval = 4f;
-    public float minSpawnInterval = 1f;
+    public float minSpawnInterval = 2.8f;  // Changed from 2.5 to 2.8 - less punishing
     public int pointsPerDifficultyIncrease = 7;
     public float minDistanceFromSpawn = 1.5f;
+
+    // New: Slower progression curve
+    public float difficultyReductionPerStep = 0.15f;  // Changed from 0.3 to 0.15 - half as fast
+
     private Dictionary<LuggageColour, int> activeBagCount = new Dictionary<LuggageColour, int>();
     private int maxBagsPerColour = 2;
 
     private float currentSpawnInterval;
     private bool isSpawning = false;
     private GameManager gameManager;
-
-    [Header("Busyness Meter")]
-    public int totalBagsSpawned = 0;
-    public int bagsForMaxBusyness = 35;
 
     void Start()
     {
@@ -37,11 +37,6 @@ public class SpawnManager : MonoBehaviour
                 activeBagCount[bagColour.luggageColour] = 0;
             }
         }
-    }
-
-    public int GetTotalBagsSpawned()
-    {
-        return totalBagsSpawned;
     }
 
     public void EnableSpawning()
@@ -65,10 +60,7 @@ public class SpawnManager : MonoBehaviour
             yield return new WaitForSeconds(currentSpawnInterval);
         }
     }
-    public float GetCurrentSpawnInterval()
-    {
-        return currentSpawnInterval;
-    }
+
     IEnumerator WaitForSpawnPointClear()
     {
         bool isClear = false;
@@ -140,14 +132,6 @@ public class SpawnManager : MonoBehaviour
         {
             bagMove.currentTarget = firstJunction;
         }
-
-        totalBagsSpawned++;
-
-        BusynessMeter meter = FindObjectOfType<BusynessMeter>();
-        if (meter != null)
-        {
-            meter.OnBagSpawned(totalBagsSpawned);
-        }
     }
 
     public void OnBagDestroyed(LuggageColour colour)
@@ -163,13 +147,26 @@ public class SpawnManager : MonoBehaviour
         if (!isSpawning) return;
 
         int difficultySteps = newScore / pointsPerDifficultyIncrease;
-        float newInterval = baseSpawnInterval - (difficultySteps * 0.3f);
+        float newInterval = baseSpawnInterval - (difficultySteps * difficultyReductionPerStep);
         currentSpawnInterval = Mathf.Max(minSpawnInterval, newInterval);
+
+        Debug.Log("Spawn interval: " + currentSpawnInterval);
     }
 
     public void StopSpawning()
     {
         isSpawning = false;
         StopAllCoroutines();
+    }
+
+    public void ResetSpawnSpeed()
+    {
+        currentSpawnInterval = baseSpawnInterval;
+        Debug.Log("Spawn speed reset to: " + currentSpawnInterval);
+    }
+
+    public float GetCurrentSpawnInterval()
+    {
+        return currentSpawnInterval;
     }
 }

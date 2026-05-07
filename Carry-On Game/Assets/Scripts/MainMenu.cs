@@ -17,6 +17,7 @@ public class MainMenu : MonoBehaviour
     private bool soundEnabled = true;
     private Text musicButtonText;
     private Text soundButtonText;
+    public GameObject soundDisabledLine;
     private AudioManager audioManager;
 
     void Start()
@@ -80,6 +81,7 @@ public class MainMenu : MonoBehaviour
         soundEnabled = !soundEnabled;
         PlayerPrefs.SetInt("SoundEnabled", soundEnabled ? 1 : 0);
         PlayerPrefs.Save();
+        soundDisabledLine.SetActive(!soundEnabled);
 
         if (audioManager != null)
             audioManager.SetSoundEnabled(soundEnabled);
