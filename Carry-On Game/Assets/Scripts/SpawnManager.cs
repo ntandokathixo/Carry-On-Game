@@ -17,11 +17,11 @@ public class SpawnManager : MonoBehaviour
     // New: Slower progression curve
     public float difficultyReductionPerStep = 0.15f;  // Changed from 0.3 to 0.15 - half as fast
 
-    private Dictionary<LuggageColour, int> activeBagCount = new Dictionary<LuggageColour, int>();
-    private int maxBagsPerColour = 2;
+    protected Dictionary<LuggageColour, int> activeBagCount = new Dictionary<LuggageColour, int>();
+    protected int maxBagsPerColour = 2;
 
     private float currentSpawnInterval;
-    private bool isSpawning = false;
+    protected bool isSpawning = false;
     private GameManager gameManager;
 
     void Start()
@@ -87,7 +87,7 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    void SpawnBag()
+    protected virtual void SpawnBag()
     {
         if (!isSpawning) return;
 

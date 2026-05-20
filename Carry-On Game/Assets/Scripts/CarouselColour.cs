@@ -19,7 +19,7 @@ public class CarouselColour : MonoBehaviour
     public float pulseScale = 1.3f;
     public float pulseDuration = 0.2f;
 
-    private GameManager gameManager;
+    protected GameManager gameManager;
     private bool isSwapped = false;
     private Vector3 originalPosition;
     private Vector3 originalScale;
