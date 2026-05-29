@@ -119,12 +119,12 @@ TextureImporter:
       name: S6(12)_0
       rect:
         serializedVersion: 2
-        x: 596
-        y: 417
-        width: 815
-        height: 294
+        x: 67
+        y: 57
+        width: 146
+        height: 95
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -141,12 +141,12 @@ TextureImporter:
       name: S6(12)_1
       rect:
         serializedVersion: 2
-        x: 1315
-        y: 389
-        width: 97
-        height: 34
+        x: 74
+        y: 58
+        width: 146
+        height: 37
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -163,7 +163,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: bfee9e717f7592b40a21a7b4d22e7f11
     internalID: 0
     vertices: []
     indices: 

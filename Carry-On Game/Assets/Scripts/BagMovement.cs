@@ -9,7 +9,6 @@ public class BagMovement : MonoBehaviour
     {
         Move();
     }
-
     void Move()
     {
         if (currentTarget == null) return;
@@ -33,12 +32,28 @@ public class BagMovement : MonoBehaviour
                 return;
             }
 
-            // Check if current target is a junction
+            // Check if current target is a 3-way junction
+            JunctionNodeMultiDirection junction3Way = currentTarget.GetComponent<JunctionNodeMultiDirection>();
+            if (junction3Way != null)
+            {
+                Transform nextPath = junction3Way.GetNextPath();
+                if (nextPath != null)
+                {
+                    currentTarget = nextPath;
+                    Debug.Log(gameObject.name + " moving to next path from 3-way junction: " + nextPath.name);
+                }
+                else
+                {
+                    currentTarget = null;
+                }
+                return;
+            }
+
+            // Check if current target is a regular 2-way junction
             JunctionNode junction = currentTarget.GetComponent<JunctionNode>();
             if (junction != null)
             {
                 Transform nextPath = junction.GetNextPath();
-
                 if (nextPath != null)
                 {
                     currentTarget = nextPath;
@@ -50,6 +65,7 @@ public class BagMovement : MonoBehaviour
             }
             else
             {
+                // Reached a carousel or end point
                 Debug.Log("BAG REACHED DESTINATION: " + gameObject.name + " at " + currentTarget.name);
                 currentTarget = null;
             }

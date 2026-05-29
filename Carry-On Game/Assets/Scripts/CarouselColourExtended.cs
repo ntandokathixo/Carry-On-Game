@@ -52,6 +52,8 @@ public class CarouselColourExtended : CarouselColour
 
     void CorrectMatch(GameObject bagObject)
     {
+        Debug.Log($"Correct match! Destroying bag: {bagObject.name}");
+
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayCorrect();
 
@@ -69,7 +71,7 @@ public class CarouselColourExtended : CarouselColour
 
     void WrongMatch(GameObject bagObject)
     {
-        Debug.Log("WRONG! Bag colour or type mismatch for " + gameObject.name);
+        Debug.Log($"Wrong match! Destroying bag: {bagObject.name}");
 
         SpriteRenderer sr = bagObject.GetComponent<SpriteRenderer>();
         if (sr != null)

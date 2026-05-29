@@ -8,8 +8,8 @@ public class CarouselSwapManager : MonoBehaviour
     public static CarouselSwapManager Instance;
 
     [Header("Swap Settings")]
-    public int firstSwapScore = 42;
-    public int swapInterval = 30;
+    public int firstSwapScore = 28;
+    public int swapInterval = 21;
     public int numberOfCarouselsToSwap = 2;
     public float swapAnimationDuration = 0.8f;
     public float pauseDuration = 2f;
@@ -50,7 +50,16 @@ public class CarouselSwapManager : MonoBehaviour
         carousels.AddRange(foundCarousels);
 
         if (npcAnnouncementPanel != null)
-            npcAnnouncementPanel.SetActive(false);
+        {
+            // Position panel off-screen initially (keep it active)
+            RectTransform rect = npcAnnouncementPanel.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                Vector2 currentPos = rect.anchoredPosition;
+                rect.anchoredPosition = new Vector2(-Screen.width, currentPos.y);
+            }
+            npcAnnouncementPanel.SetActive(true);
+        }
 
         Debug.Log("Found " + carousels.Count + " carousels");
     }
@@ -98,22 +107,15 @@ public class CarouselSwapManager : MonoBehaviour
             AudioManager.Instance.PlaySound(swapSound);
         }
 
-        // Select which carousels will swap
         SelectCarouselsToSwap();
-
-        // ALL carousels bounce
         StartAllCarouselBounces();
 
-        // Wait 0.5 seconds
         yield return new WaitForSecondsRealtime(0.5f);
 
-        // ONLY the selected carousels pulse twice
         StartSelectedCarouselPulses();
 
-        // Wait 0.3 seconds for first pulse
         yield return new WaitForSecondsRealtime(0.3f);
 
-        // Store waypoint connections before swap
         Dictionary<Waypoint, Transform> originalWaypointTargets = new Dictionary<Waypoint, Transform>();
         Waypoint[] allWaypoints = FindObjectsOfType<Waypoint>();
         foreach (Waypoint waypoint in allWaypoints)
@@ -124,23 +126,16 @@ public class CarouselSwapManager : MonoBehaviour
             }
         }
 
-        // Swap positions
         yield return StartCoroutine(SwapCarouselPositions());
 
-        // Update waypoints to point to the correct carousels at their new positions
         UpdateWaypointTargets(originalWaypointTargets);
 
-        // Wait a moment for swap to complete
         yield return new WaitForSecondsRealtime(0.5f);
 
-        // Notify GameManager that a swap occurred (for session tracking)
         if (gameManager != null)
         {
-            gameManager.IncrementSwapsSurvived();
+            gameManager.OnCarouselSwapOccurred();
         }
-
-        if (npcAnnouncementPanel != null)
-            npcAnnouncementPanel.SetActive(false);
 
         Time.timeScale = 1f;
 
@@ -152,9 +147,67 @@ public class CarouselSwapManager : MonoBehaviour
         Debug.Log("Carousel swap completed!");
     }
 
+    IEnumerator ShowAnnouncement()
+    {
+        if (npcAnnouncementPanel != null && announcementText != null)
+        {
+            // Update text
+            announcementText.text = "CAROUSEL SWAP!\nLook out! Carousels are moving positions!";
+
+            RectTransform rect = npcAnnouncementPanel.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                // Store target position (where it should end up)
+                Vector2 targetPos = new Vector2(0, rect.anchoredPosition.y);
+
+                // Set start position (off-screen left)
+                Vector2 startPos = new Vector2(-Screen.width, targetPos.y);
+                rect.anchoredPosition = startPos;
+
+                // Slide in
+                float slideInDuration = 0.3f;
+                float elapsedTime = 0;
+
+                while (elapsedTime < slideInDuration)
+                {
+                    elapsedTime += Time.unscaledDeltaTime;
+                    float t = elapsedTime / slideInDuration;
+                    t = Mathf.SmoothStep(0, 1, t);
+                    rect.anchoredPosition = Vector2.Lerp(startPos, targetPos, t);
+                    yield return null;
+                }
+
+                rect.anchoredPosition = targetPos;
+            }
+
+            // Wait
+            yield return new WaitForSecondsRealtime(pauseDuration);
+
+            // Slide out
+            if (rect != null)
+            {
+                Vector2 currentPos = rect.anchoredPosition;
+                Vector2 offScreenPos = new Vector2(-Screen.width, currentPos.y);
+
+                float slideOutDuration = 0.3f;
+                float elapsedTime = 0;
+
+                while (elapsedTime < slideOutDuration)
+                {
+                    elapsedTime += Time.unscaledDeltaTime;
+                    float t = elapsedTime / slideOutDuration;
+                    t = Mathf.SmoothStep(0, 1, t);
+                    rect.anchoredPosition = Vector2.Lerp(currentPos, offScreenPos, t);
+                    yield return null;
+                }
+
+                rect.anchoredPosition = offScreenPos;
+            }
+        }
+    }
+
     void UpdateWaypointTargets(Dictionary<Waypoint, Transform> originalTargets)
     {
-        // Create a mapping of carousel names to their new positions
         Dictionary<string, CarouselColour> carouselMap = new Dictionary<string, CarouselColour>();
         foreach (CarouselColour carousel in carousels)
         {
@@ -166,11 +219,9 @@ public class CarouselSwapManager : MonoBehaviour
             Waypoint waypoint = entry.Key;
             Transform originalTarget = entry.Value;
 
-            // Check if the original target was a carousel
             CarouselColour targetCarousel = originalTarget.GetComponent<CarouselColour>();
             if (targetCarousel != null)
             {
-                // Find the carousel that now has the same name (it moved)
                 if (carouselMap.ContainsKey(targetCarousel.name))
                 {
                     CarouselColour currentCarousel = carouselMap[targetCarousel.name];
@@ -234,63 +285,6 @@ public class CarouselSwapManager : MonoBehaviour
                 Destroy(bag.gameObject);
         }
         Debug.Log("Destroyed " + bags.Length + " active bags");
-    }
-
-    IEnumerator ShowAnnouncement()
-    {
-        if (npcAnnouncementPanel != null)
-        {
-            npcAnnouncementPanel.SetActive(true);
-            if (announcementText != null)
-            {
-                announcementText.text = "CAROUSEL SWAP!\nLook out! Carousels are moving positions!";
-            }
-
-            RectTransform rect = npcAnnouncementPanel.GetComponent<RectTransform>();
-
-            // Store the target position (where it should end up)
-            Vector2 endPos = rect.anchoredPosition;
-
-            // Calculate start position off-screen (left side)
-            Vector2 startPos = new Vector2(-Screen.width, endPos.y);
-
-            // Set to start position
-            rect.anchoredPosition = startPos;
-
-            // Slide in
-            float slideInDuration = 0.3f;
-            float elapsedTime = 0;
-
-            while (elapsedTime < slideInDuration)
-            {
-                elapsedTime += Time.unscaledDeltaTime;
-                float t = elapsedTime / slideInDuration;
-                t = Mathf.SmoothStep(0, 1, t);
-                rect.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
-                yield return null;
-            }
-
-            rect.anchoredPosition = endPos;
-
-            // Wait for the pause duration
-            yield return new WaitForSecondsRealtime(pauseDuration);
-
-            // Slide out
-            float slideOutDuration = 0.3f;
-            elapsedTime = 0;
-
-            while (elapsedTime < slideOutDuration)
-            {
-                elapsedTime += Time.unscaledDeltaTime;
-                float t = elapsedTime / slideOutDuration;
-                t = Mathf.SmoothStep(0, 1, t);
-                rect.anchoredPosition = Vector2.Lerp(endPos, startPos, t);
-                yield return null;
-            }
-
-            rect.anchoredPosition = startPos;
-            npcAnnouncementPanel.SetActive(false);
-        }
     }
 
     IEnumerator SwapCarouselPositions()

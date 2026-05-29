@@ -116,10 +116,10 @@ TextureImporter:
       name: S8(12)_0
       rect:
         serializedVersion: 2
-        x: 596
+        x: 1312
         y: 377
-        width: 811
-        height: 334
+        width: 95
+        height: 89
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

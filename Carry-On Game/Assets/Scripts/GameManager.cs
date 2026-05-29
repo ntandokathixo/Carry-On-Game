@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     [Header("In-Game UI")]
     public Text inGameScoreText;
     public Text inGameBestText;
+    private string personalBestKey;
 
     [Header("Game Over Panel")]
     public GameObject gameOverPanel;
@@ -90,7 +91,11 @@ public class GameManager : MonoBehaviour
             playerName = PlayerNameManager.Instance.CurrentPlayerName;
         }
 
-        personalBest = PlayerPrefs.GetInt("PersonalBest", 0);
+        // Create level-specific key for personal best
+        string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        personalBestKey = "PersonalBest_" + sceneName;
+
+        personalBest = PlayerPrefs.GetInt(personalBestKey, 0);
         swapManager = FindObjectOfType<CarouselSwapManager>();
 
         currentLives = maxLives;
@@ -126,10 +131,10 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             personalBest = 0;
-            PlayerPrefs.SetInt("PersonalBest", 0);
+            PlayerPrefs.SetInt(personalBestKey, 0);
             PlayerPrefs.Save();
             UpdateInGameUI();
-            Debug.Log("Best score reset to 0");
+            Debug.Log("Best score reset to 0 for this level");
         }
     }
 
@@ -302,7 +307,7 @@ public class GameManager : MonoBehaviour
         if (currentScore > personalBest)
         {
             personalBest = currentScore;
-            PlayerPrefs.SetInt("PersonalBest", personalBest);
+            PlayerPrefs.SetInt(personalBestKey, personalBest);
             PlayerPrefs.Save();
 
             if (AudioManager.Instance != null)
