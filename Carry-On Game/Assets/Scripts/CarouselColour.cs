@@ -19,6 +19,9 @@ public class CarouselColour : MonoBehaviour
     public float pulseScale = 1.3f;
     public float pulseDuration = 0.2f;
 
+    [Header("Black Bag Reward")]
+    public int blackBagReward = 1;
+
     protected GameManager gameManager;
     private bool isSwapped = false;
     private Vector3 originalPosition;
@@ -174,16 +177,35 @@ public class CarouselColour : MonoBehaviour
         if (gameManager != null && gameManager.IsGameOver())
             return;
 
-        // Check if other object still exists
         if (other == null || other.gameObject == null)
             return;
+
+        BlackBagMarker blackBag = other.GetComponent<BlackBagMarker>();
+        if (blackBag != null && blackBag.gameManager != null)
+        {
+            Debug.Log($"Black bag reached carousel! Reward: {blackBagReward}");
+
+            blackBag.gameManager.AddLives(blackBagReward);
+            blackBag.gameManager.ShowLifeGainPopup(blackBagReward, transform.position);
+
+            Destroy(other.gameObject);
+
+            SpawnManager spawner = FindObjectOfType<SpawnManager>();
+            if (spawner != null)
+            {
+                spawner.EnableSpawning();
+            }
+
+            blackBag.gameManager.isBlackBagEventActive = false;
+
+            return;
+        }
 
         BagColour bag = other.GetComponent<BagColour>();
         if (bag == null) return;
 
         if (bag.luggageColour == expectedLuggageColour)
         {
-            // CORRECT
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlayCorrect();
 
@@ -200,10 +222,8 @@ public class CarouselColour : MonoBehaviour
         }
         else
         {
-            // WRONG - Lose a life
             Debug.Log("WRONG! Bag is " + bag.luggageColour + " but carousel expects " + expectedLuggageColour);
 
-            // Flash the bag red before destroying
             SpriteRenderer sr = other.GetComponent<SpriteRenderer>();
             if (sr != null)
             {
@@ -211,7 +231,6 @@ public class CarouselColour : MonoBehaviour
             }
             else
             {
-                // Tell game manager to lose a life
                 if (gameManager != null && !gameManager.IsGameOver())
                 {
                     gameManager.LoseLife();
@@ -225,7 +244,6 @@ public class CarouselColour : MonoBehaviour
     {
         Color originalColor = sr.color;
 
-        // Flash red 3 times quickly
         for (int i = 0; i < 3; i++)
         {
             if (sr != null)
@@ -236,13 +254,11 @@ public class CarouselColour : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
 
-        // Tell game manager to lose a life
         if (gameManager != null && !gameManager.IsGameOver())
         {
             gameManager.LoseLife();
         }
 
-        // Destroy the bag
         if (bagObject != null)
             Destroy(bagObject);
     }

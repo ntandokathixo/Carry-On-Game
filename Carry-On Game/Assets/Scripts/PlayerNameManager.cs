@@ -5,12 +5,12 @@ using TMPro;
 public class PlayerNameManager : MonoBehaviour
 {
     [Header("UI Elements")]
-    public Button openNamePopupButton;      // Button to open the popup
-    public GameObject nameEntryPopup;       // The popup panel
-    public TMP_InputField nameInputField;   // Input field inside popup
-    public Button saveNameButton;           // Save button inside popup
-    public Button cancelNameButton;         // Cancel button inside popup
-    public TextMeshProUGUI currentNameDisplay; // Optional: display current name on main menu
+    public Button openNamePopupButton;
+    public GameObject nameEntryPopup;
+    public TMP_InputField nameInputField;
+    public Button saveNameButton;
+    public Button cancelNameButton;
+    public TextMeshProUGUI currentNameDisplay;
 
     [Header("Settings")]
     public string defaultName = "Player";
@@ -21,7 +21,6 @@ public class PlayerNameManager : MonoBehaviour
 
     void Awake()
     {
-        // Singleton pattern
         if (Instance == null)
         {
             Instance = this;
@@ -36,36 +35,24 @@ public class PlayerNameManager : MonoBehaviour
 
     void Start()
     {
-        // Ensure popup starts hidden
         if (nameEntryPopup != null)
             nameEntryPopup.SetActive(false);
 
-        // Set up open popup button
         if (openNamePopupButton != null)
-        {
             openNamePopupButton.onClick.AddListener(OpenNamePopup);
-        }
 
-        // Set up input field
         if (nameInputField != null)
         {
             nameInputField.text = CurrentPlayerName;
             nameInputField.characterLimit = maxNameLength;
         }
 
-        // Set up save button
         if (saveNameButton != null)
-        {
             saveNameButton.onClick.AddListener(SaveAndClosePopup);
-        }
 
-        // Set up cancel button
         if (cancelNameButton != null)
-        {
             cancelNameButton.onClick.AddListener(CloseNamePopup);
-        }
 
-        // Update display text if exists
         UpdateDisplayText();
     }
 
@@ -73,19 +60,26 @@ public class PlayerNameManager : MonoBehaviour
     {
         if (nameEntryPopup != null)
         {
-            // Reset input field to current name
             if (nameInputField != null)
                 nameInputField.text = CurrentPlayerName;
 
-            nameEntryPopup.SetActive(true);
-            Debug.Log("Name entry popup opened");
+            RectTransform rect = nameEntryPopup.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                rect.anchoredPosition = Vector2.zero;
+            }
 
-            // Automatically select the input field
+            nameEntryPopup.transform.SetAsLastSibling();
+            nameEntryPopup.SetActive(true);
+            Canvas.ForceUpdateCanvases();
+
             if (nameInputField != null)
             {
                 nameInputField.Select();
                 nameInputField.ActivateInputField();
             }
+
+            Debug.Log("Name entry popup opened");
         }
     }
 
@@ -110,22 +104,17 @@ public class PlayerNameManager : MonoBehaviour
         {
             CurrentPlayerName = nameInputField.text.Trim();
 
-            // Limit length
             if (CurrentPlayerName.Length > maxNameLength)
                 CurrentPlayerName = CurrentPlayerName.Substring(0, maxNameLength);
 
-            // Save to PlayerPrefs
             PlayerPrefs.SetString("PlayerName", CurrentPlayerName);
             PlayerPrefs.Save();
 
             Debug.Log("Player name saved: " + CurrentPlayerName);
-
-            // Update display
             UpdateDisplayText();
         }
         else
         {
-            // If empty, use default name
             CurrentPlayerName = defaultName;
             if (nameInputField != null)
                 nameInputField.text = CurrentPlayerName;
@@ -148,7 +137,6 @@ public class PlayerNameManager : MonoBehaviour
         }
     }
 
-    // Optional: Reset name (for debugging)
     public void ResetPlayerName()
     {
         CurrentPlayerName = defaultName;

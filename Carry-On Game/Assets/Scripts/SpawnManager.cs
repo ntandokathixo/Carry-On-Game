@@ -4,18 +4,19 @@ using System.Collections.Generic;
 
 public class SpawnManager : MonoBehaviour
 {
+    private int totalBagsSpawned = 0;
     public List<GameObject> colourPrefabs;
     public Transform spawnPoint;
     public Transform firstJunction;
 
     public float startDelay = 2f;
     public float baseSpawnInterval = 4f;
-    public float minSpawnInterval = 2.8f;  // Changed from 2.5 to 2.8 - less punishing
+    public float minSpawnInterval = 2f;  
     public int pointsPerDifficultyIncrease = 7;
     public float minDistanceFromSpawn = 1.5f;
 
-    // New: Slower progression curve
-    public float difficultyReductionPerStep = 0.15f;  // Changed from 0.3 to 0.15 - half as fast
+    //Slower progression curve
+    public float difficultyReductionPerStep = 0.15f; 
 
     protected Dictionary<LuggageColour, int> activeBagCount = new Dictionary<LuggageColour, int>();
     protected int maxBagsPerColour = 2;
@@ -105,6 +106,7 @@ public class SpawnManager : MonoBehaviour
                 }
             }
         }
+        totalBagsSpawned++;
 
         if (availablePrefabs.Count == 0)
         {
@@ -168,5 +170,10 @@ public class SpawnManager : MonoBehaviour
     public float GetCurrentSpawnInterval()
     {
         return currentSpawnInterval;
+    }
+
+    public int GetTotalBagsSpawned()
+    {
+        return totalBagsSpawned;
     }
 }

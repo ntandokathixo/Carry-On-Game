@@ -7,60 +7,85 @@ public class LevelStarter : MonoBehaviour
 {
     [Header("UI Panel")]
     public GameObject infoPanel;
-    public TextMeshProUGUI infoText;
     public Button gotItButton;
+    public TextMeshProUGUI infoText;
 
     [Header("Slide Settings")]
-    public float slideDuration = 0.5f;
-    public Vector2 slideFromDirection = new Vector2(-1, 0); // -1 = from left, 1 = from right
+    public float slideDuration = 0.3f;
+
+    [Header("Level 2 Message")]
+    [TextArea(5, 10)]
+    public string level2Message = "Heads up [PLAYER_NAME]\n\nThe system has been upgraded.\nWe have more carousels to manage,\nand some bags have polka dots.\nStay focused and watch where each bag needs to go!";
+
+    [Header("Level 3 Message")]
+    [TextArea(5, 10)]
+    public string level3Message = "[PLAYER_NAME]\n\nWe've reached maximum carousel capacity.\nMore bags to track, more dots to match.\nStay focused. You've got this.\nReady?";
 
     private SpawnManagerExtended spawnManager;
     private RectTransform panelRect;
     private Vector2 startPosition;
     private Vector2 targetPosition;
+    private string playerName = "Player";
 
     void Start()
     {
-        spawnManager = FindObjectOfType<SpawnManagerExtended>();
+        // Get player name
+        if (PlayerNameManager.Instance != null)
+        {
+            playerName = PlayerNameManager.Instance.CurrentPlayerName;
+        }
 
+        // Find spawn manager
+        spawnManager = FindObjectOfType<SpawnManagerExtended>();
         if (spawnManager != null)
         {
             spawnManager.StopSpawning();
-            Debug.Log("SpawnManager found and stopped");
         }
 
-        // Setup sliding panel
+        // Setup panel sliding
         if (infoPanel != null)
         {
             panelRect = infoPanel.GetComponent<RectTransform>();
             targetPosition = panelRect.anchoredPosition;
-
-            float screenWidth = Screen.width;
-            float offset = slideFromDirection.x * screenWidth;
-            startPosition = targetPosition + new Vector2(offset, 0);
-
-            // Set panel to start position (off-screen)
+            startPosition = new Vector2(-Screen.width, targetPosition.y);
             panelRect.anchoredPosition = startPosition;
+        }
 
-            // Set text
-            if (infoText != null)
-            {
-                infoText.text = "Boss: We've added more carousels. And watch the polka dots. Solid bags go to solid carousels. Dots go to dots. You've got this. Ready?";
-            }
+        // Set the message based on scene name
+        string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        string finalMessage = "";
 
-            // Setup button
-            if (gotItButton != null)
-            {
-                gotItButton.onClick.AddListener(OnGotItPressed);
-            }
+        if (sceneName == "Level3" || sceneName == "Scene3")
+        {
+            finalMessage = level3Message.Replace("[PLAYER_NAME]", playerName);
+        }
+        else
+        {
+            finalMessage = level2Message.Replace("[PLAYER_NAME]", playerName);
+        }
 
-            // Show panel and slide in
+        if (infoText != null)
+        {
+            infoText.text = finalMessage;
+        }
+
+        // Setup button
+        if (gotItButton != null)
+        {
+            gotItButton.onClick.RemoveAllListeners();
+            gotItButton.onClick.AddListener(OnButtonPressed);
+            gotItButton.interactable = true;
+        }
+
+        // Show panel and slide in
+        if (infoPanel != null)
+        {
             infoPanel.SetActive(true);
-            StartCoroutine(SlideInPanel());
+            StartCoroutine(SlideIn());
         }
     }
 
-    IEnumerator SlideInPanel()
+    IEnumerator SlideIn()
     {
         float elapsedTime = 0;
 
@@ -76,7 +101,7 @@ public class LevelStarter : MonoBehaviour
         panelRect.anchoredPosition = targetPosition;
     }
 
-    IEnumerator SlideOutPanel()
+    IEnumerator SlideOut()
     {
         float elapsedTime = 0;
 
@@ -90,26 +115,24 @@ public class LevelStarter : MonoBehaviour
         }
 
         panelRect.anchoredPosition = startPosition;
-        infoPanel.SetActive(false);
     }
 
-    void OnGotItPressed()
+    void OnButtonPressed()
     {
-        Debug.Log("Got It button pressed");
-        StartCoroutine(SlideOutAndStart());
+        StartCoroutine(CloseAndStart());
     }
 
-    IEnumerator SlideOutAndStart()
+    IEnumerator CloseAndStart()
     {
         if (infoPanel != null)
         {
-            yield return StartCoroutine(SlideOutPanel());
+            yield return StartCoroutine(SlideOut());
+            infoPanel.SetActive(false);
         }
 
         if (spawnManager != null)
         {
             spawnManager.StartSpawning();
-            Debug.Log("StartSpawning called");
         }
 
         Destroy(gameObject);

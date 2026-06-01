@@ -6,22 +6,42 @@ public class CarouselColourExtended : CarouselColour
     [Header("Extended Settings")]
     public BagType acceptedBagType; // Solid or PolkaDot
 
+    // Remove everything else - parent already has blackBagReward, etc.
+
     void OnTriggerEnter2D(Collider2D other)
     {
-        // Access gameManager through the parent property
-        // Since gameManager is protected, we can still use it in child class
         if (gameManager != null && gameManager.IsGameOver())
             return;
 
         if (other == null || other.gameObject == null)
             return;
 
+        // Check for black bag first
+        BlackBagMarker blackBag = other.GetComponent<BlackBagMarker>();
+        if (blackBag != null && blackBag.gameManager != null)
+        {
+            int livesToAdd = blackBagReward; // This comes from parent class
+            blackBag.gameManager.AddLives(livesToAdd);
+            blackBag.gameManager.ShowLifeGainPopup(livesToAdd, transform.position);
+
+            Destroy(other.gameObject);
+
+            SpawnManager spawner = FindObjectOfType<SpawnManager>();
+            if (spawner != null)
+            {
+                spawner.EnableSpawning();
+            }
+
+            blackBag.gameManager.isBlackBagEventActive = false;
+
+            return;
+        }
+
         // Try to get extended bag component first
         BagColourExtended bagExtended = other.GetComponent<BagColourExtended>();
 
         if (bagExtended != null)
         {
-            // Extended check: colour AND type must match
             if (bagExtended.luggageColour == expectedLuggageColour &&
                 bagExtended.bagType == acceptedBagType)
             {
@@ -34,7 +54,6 @@ public class CarouselColourExtended : CarouselColour
         }
         else
         {
-            // Fall back to original behaviour (for Level 1 bags if they appear here)
             BagColour bag = other.GetComponent<BagColour>();
             if (bag != null)
             {
@@ -52,8 +71,6 @@ public class CarouselColourExtended : CarouselColour
 
     void CorrectMatch(GameObject bagObject)
     {
-        Debug.Log($"Correct match! Destroying bag: {bagObject.name}");
-
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayCorrect();
 
@@ -71,8 +88,6 @@ public class CarouselColourExtended : CarouselColour
 
     void WrongMatch(GameObject bagObject)
     {
-        Debug.Log($"Wrong match! Destroying bag: {bagObject.name}");
-
         SpriteRenderer sr = bagObject.GetComponent<SpriteRenderer>();
         if (sr != null)
         {

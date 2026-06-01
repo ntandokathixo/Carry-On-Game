@@ -68,6 +68,20 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI summaryStreakText;
     public TextMeshProUGUI summaryBagsText;
 
+    [Header("Life Regain System")]
+    public int livesLostThisSession = 0;
+    public int streakForLifeRegain = 15;
+    public bool hasSeenLifeRegainNotification = false;
+    public GameObject lifeRegainNotificationPanel;
+    public TextMeshProUGUI lifeRegainNotificationText;
+    public Button lifeRegainNotificationButton;
+    public GameObject blackBagPrefab;
+    public bool isBlackBagEventActive = false;
+    public float panelSlideDuration = 0.3f;
+
+    [Header("Special Bag")]
+    public string specialBagName = "Lucky Luggage";
+
     private int currentScore = 0;
     private int personalBest = 0;
     private bool isGameOver = false;
@@ -76,6 +90,9 @@ public class GameManager : MonoBehaviour
     private string playerName = "Player";
     private int lastMoreBagsScore = 0;
     private CarouselSwapManager swapManager;
+    private RectTransform notificationRect;
+    private Vector2 notificationStartPos;
+    private Vector2 notificationTargetPos;
 
     // Session tracking variables
     private int sessionBestScore = 0;
@@ -91,7 +108,6 @@ public class GameManager : MonoBehaviour
             playerName = PlayerNameManager.Instance.CurrentPlayerName;
         }
 
-        // Create level-specific key for personal best
         string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
         personalBestKey = "PersonalBest_" + sceneName;
 
@@ -103,6 +119,17 @@ public class GameManager : MonoBehaviour
 
         ResetSessionStats();
         UpdateInGameUI();
+
+       // hasSeenLifeRegainNotification = PlayerPrefs.GetInt("LifeRegainNotif_" + sceneName, 0) == 1;
+
+        if (lifeRegainNotificationPanel != null)
+        {
+            notificationRect = lifeRegainNotificationPanel.GetComponent<RectTransform>();
+            notificationTargetPos = notificationRect.anchoredPosition;
+            notificationStartPos = new Vector2(-Screen.width, notificationTargetPos.y);
+            notificationRect.anchoredPosition = notificationStartPos;
+            lifeRegainNotificationPanel.SetActive(false);
+        }
 
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
@@ -136,6 +163,15 @@ public class GameManager : MonoBehaviour
             UpdateInGameUI();
             Debug.Log("Best score reset to 0 for this level");
         }
+
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            PlayerPrefs.SetInt("LifeRegainNotif_" + sceneName, 0);
+            PlayerPrefs.Save();
+            hasSeenLifeRegainNotification = false;
+            Debug.Log("Life regain notification reset for this level");
+        }
     }
 
     void ResetSessionStats()
@@ -145,6 +181,8 @@ public class GameManager : MonoBehaviour
         sessionLongestStreak = 0;
         currentStreak = 0;
         totalBagsSorted = 0;
+        livesLostThisSession = 0;
+        isBlackBagEventActive = false;
     }
 
     public void AddScore(int points = 1)
@@ -154,11 +192,18 @@ public class GameManager : MonoBehaviour
         currentScore += points;
         totalBagsSorted++;
 
-        // Track streak
         currentStreak++;
         if (currentStreak > sessionLongestStreak)
         {
             sessionLongestStreak = currentStreak;
+        }
+
+        if (livesLostThisSession >= 2 && !isBlackBagEventActive && !isGameOver)
+        {
+            if (currentStreak >= streakForLifeRegain)
+            {
+                TriggerBlackBagEvent();
+            }
         }
 
         ShowRandomEncouragement();
@@ -188,7 +233,6 @@ public class GameManager : MonoBehaviour
             newHighScoreAchieved = true;
         }
 
-        // Track session best
         if (currentScore > sessionBestScore)
         {
             sessionBestScore = currentScore;
@@ -226,10 +270,10 @@ public class GameManager : MonoBehaviour
     {
         if (isGameOver) return;
 
-        // Reset streak on mistake
         currentStreak = 0;
 
         currentLives--;
+        livesLostThisSession++;
         UpdateLivesUI();
 
         if (AudioManager.Instance != null && lifeLostSound != null)
@@ -237,13 +281,169 @@ public class GameManager : MonoBehaviour
             AudioManager.Instance.PlaySound(lifeLostSound);
         }
 
-        Debug.Log("Life lost. Remaining: " + currentLives);
+        Debug.Log($"Life lost. Remaining: {currentLives}. Total lost this session: {livesLostThisSession}");
+
+        if (livesLostThisSession == 2 && !isGameOver)
+        {
+            StartCoroutine(ShowLifeRegainNotification());
+        }
 
         if (currentLives <= 0)
         {
             GameOver();
         }
     }
+
+    IEnumerator ShowLifeRegainNotification()
+    {
+        //hasSeenLifeRegainNotification = true;
+
+        string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        //PlayerPrefs.SetInt("LifeRegainNotif_" + sceneName, 1);
+        //PlayerPrefs.Save();
+
+        Time.timeScale = 0f;
+
+        if (lifeRegainNotificationPanel != null)
+        {
+            notificationRect.anchoredPosition = notificationStartPos;
+            lifeRegainNotificationPanel.SetActive(true);
+
+            if (lifeRegainNotificationText != null)
+            {
+                lifeRegainNotificationText.text = "Oops. Looks like things are getting out of control.\n\nGet 15 correct bags in a row to earn a black bag.\nGuide it to any carousel to regain lives!";
+            }
+
+            float elapsedTime = 0;
+            while (elapsedTime < panelSlideDuration)
+            {
+                elapsedTime += Time.unscaledDeltaTime;
+                float t = elapsedTime / panelSlideDuration;
+                t = Mathf.SmoothStep(0, 1, t);
+                notificationRect.anchoredPosition = Vector2.Lerp(notificationStartPos, notificationTargetPos, t);
+                yield return null;
+            }
+            notificationRect.anchoredPosition = notificationTargetPos;
+
+            if (lifeRegainNotificationButton != null)
+            {
+                lifeRegainNotificationButton.onClick.RemoveAllListeners();
+                lifeRegainNotificationButton.onClick.AddListener(CloseLifeRegainNotification);
+            }
+        }
+    }
+
+    public void ShowSpecialBagNotification()
+    {
+        if (CenterMessage.Instance != null)
+        {
+            string message = $" {specialBagName} INCOMING!";
+            Color specialColor = new Color(1f, 0.9f, 0.2f);
+            CenterMessage.Instance.ShowMessage(message, specialColor);
+        }
+    }
+
+    void CloseLifeRegainNotification()
+    {
+        StartCoroutine(SlideOutAndResume());
+    }
+
+    IEnumerator SlideOutAndResume()
+    {
+        if (lifeRegainNotificationPanel != null)
+        {
+            float elapsedTime = 0;
+            while (elapsedTime < panelSlideDuration)
+            {
+                elapsedTime += Time.unscaledDeltaTime;
+                float t = elapsedTime / panelSlideDuration;
+                t = Mathf.SmoothStep(0, 1, t);
+                notificationRect.anchoredPosition = Vector2.Lerp(notificationTargetPos, notificationStartPos, t);
+                yield return null;
+            }
+            notificationRect.anchoredPosition = notificationStartPos;
+            lifeRegainNotificationPanel.SetActive(false);
+        }
+
+        Time.timeScale = 1f;
+    }
+
+    void TriggerBlackBagEvent()
+    {
+        isBlackBagEventActive = true;
+        currentStreak = 0;
+
+        Debug.Log("Special bag event triggered!");
+
+        // Show notification
+        ShowSpecialBagNotification();
+
+        SpawnManager spawner = FindObjectOfType<SpawnManager>();
+        if (spawner != null)
+        {
+            spawner.StopSpawning();
+
+            BagMovement[] allBags = FindObjectsOfType<BagMovement>();
+            foreach (BagMovement bag in allBags)
+            {
+                if (bag != null)
+                {
+                    Destroy(bag.gameObject);
+                }
+            }
+        }
+
+        if (blackBagPrefab != null && spawner != null && spawner.spawnPoint != null && spawner.firstJunction != null)
+        {
+            GameObject specialBag = Instantiate(blackBagPrefab, spawner.spawnPoint.position, Quaternion.identity);
+            specialBag.tag = "Bag";
+
+            BlackBagMarker marker = specialBag.AddComponent<BlackBagMarker>();
+            marker.gameManager = this;
+
+            BagMovement bagMove = specialBag.GetComponent<BagMovement>();
+            if (bagMove != null)
+            {
+                bagMove.currentTarget = spawner.firstJunction;
+            }
+
+            Debug.Log($"{specialBagName} spawned!");
+        }
+        else
+        {
+            Debug.LogError($"Cannot spawn {specialBagName} - missing references!");
+            if (spawner != null)
+            {
+                spawner.EnableSpawning();
+            }
+            isBlackBagEventActive = false;
+        }
+    }
+
+    public void AddLives(int amount)
+    {
+        int oldLives = currentLives;
+        currentLives = Mathf.Min(maxLives, currentLives + amount);
+        UpdateLivesUI();
+        UpdateInGameUI();
+
+        Debug.Log($"Gained {amount} life(s)! Lives: {oldLives} -> {currentLives}");
+    }
+
+    public void ShowLifeGainPopup(int amount, Vector3 position)
+    {
+        if (CenterMessage.Instance != null)
+        {
+            string message = $"+{amount} LIFE";
+            Color goldColor = new Color(1f, 0.8f, 0.2f);
+            CenterMessage.Instance.ShowMessage(message, goldColor);
+        }
+        else
+        {
+            Debug.LogError("CenterMessage.Instance is NULL!");
+        }
+    }
+
 
     void UpdateLivesUI()
     {
@@ -267,8 +467,7 @@ public class GameManager : MonoBehaviour
 
         if (summaryBestText != null)
         {
-            bool isNewRecord = currentScore > personalBest;
-            summaryBestText.text = "Best: " + personalBest ;
+            summaryBestText.text = "Best: " + personalBest;
         }
 
         if (summaryLivesText != null)
@@ -295,13 +494,6 @@ public class GameManager : MonoBehaviour
             AudioManager.Instance.StopMusic();
         }
 
-        // Check achievements first
-        if (AchievementLog.Instance != null)
-        {
-            AchievementLog.Instance.CheckAchievements(currentScore, sessionSwapsSurvived, sessionLongestStreak, currentLives);
-        }
-
-        // Update summary panel with final stats
         UpdateSessionSummary();
 
         if (currentScore > personalBest)
@@ -400,6 +592,8 @@ public class GameManager : MonoBehaviour
 
     public void RestartGame()
     {
+        Time.timeScale = 1f;
+
         if (swapManager != null)
         {
             swapManager.ResetCarousels();
@@ -410,6 +604,7 @@ public class GameManager : MonoBehaviour
 
     public void GoToMainMenu()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene(mainMenuSceneName);
     }
 

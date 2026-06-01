@@ -1,16 +1,21 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class MainMenu : MonoBehaviour
 {
     [Header("Scene Settings")]
-    public string gameSceneName = "SampleScene";
+    public string carousel1SceneName = "Scene1";  // Carousel 1 (6 carousels, solid bags)
+    public string carousel2SceneName = "Scene2";  // Carousel 2 (12 carousels, solid + polka dot)
+    public string carousel3SceneName = "Scene3";  // Carousel 3 (15 carousels, solid + polka dot)
 
     [Header("UI Buttons")]
     public Button musicButton;
     public Button soundButton;
-    public Button startButton;
+    public Button carousel1Button;
+    public Button carousel2Button;
+    public Button carousel3Button;
     public Button quitButton;
 
     private bool musicEnabled = true;
@@ -22,12 +27,11 @@ public class MainMenu : MonoBehaviour
 
     void Start()
     {
-        // Find the AudioManager (it should be in this scene now)
         audioManager = FindObjectOfType<AudioManager>();
 
         if (audioManager == null)
         {
-            Debug.LogError("No AudioManager found in Main Menu scene! Please add one.");
+            Debug.LogError("No AudioManager found in Main Menu scene!");
             return;
         }
 
@@ -35,29 +39,36 @@ public class MainMenu : MonoBehaviour
         musicEnabled = PlayerPrefs.GetInt("MusicEnabled", 1) == 1;
         soundEnabled = PlayerPrefs.GetInt("SoundEnabled", 1) == 1;
 
-        // Get text components from buttons
+        // Get text components
         if (musicButton != null)
             musicButtonText = musicButton.GetComponentInChildren<Text>();
 
         if (soundButton != null)
             soundButtonText = soundButton.GetComponentInChildren<Text>();
 
-        // Apply settings to AudioManager
+        // Apply settings
         audioManager.SetMusicEnabled(musicEnabled);
         audioManager.SetSoundEnabled(soundEnabled);
 
-        // Update button text
+        // Update button visuals
         UpdateButtonText();
+        soundDisabledLine.SetActive(!soundEnabled);
 
-        // Add listeners to buttons
+        // Add button listeners
         if (musicButton != null)
             musicButton.onClick.AddListener(ToggleMusic);
 
         if (soundButton != null)
             soundButton.onClick.AddListener(ToggleSound);
 
-        if (startButton != null)
-            startButton.onClick.AddListener(StartGame);
+        if (carousel1Button != null)
+            carousel1Button.onClick.AddListener(() => StartGame(carousel1SceneName, "Carousel 1"));
+
+        if (carousel2Button != null)
+            carousel2Button.onClick.AddListener(() => StartGame(carousel2SceneName, "Carousel 2"));
+
+        if (carousel3Button != null)
+            carousel3Button.onClick.AddListener(() => StartGame(carousel3SceneName, "Carousel 3"));
 
         if (quitButton != null)
             quitButton.onClick.AddListener(QuitGame);
@@ -73,7 +84,6 @@ public class MainMenu : MonoBehaviour
             audioManager.SetMusicEnabled(musicEnabled);
 
         UpdateButtonText();
-        Debug.Log("Music " + (musicEnabled ? "ON" : "OFF"));
     }
 
     void ToggleSound()
@@ -87,7 +97,6 @@ public class MainMenu : MonoBehaviour
             audioManager.SetSoundEnabled(soundEnabled);
 
         UpdateButtonText();
-        Debug.Log("Sound " + (soundEnabled ? "ON" : "OFF"));
     }
 
     void UpdateButtonText()
@@ -99,10 +108,10 @@ public class MainMenu : MonoBehaviour
             soundButtonText.text = "Sound: " + (soundEnabled ? "ON" : "OFF");
     }
 
-    public void StartGame()
+    void StartGame(string sceneName, string carouselName)
     {
-        Debug.Log("Starting game...");
-        SceneManager.LoadScene(gameSceneName);
+        Debug.Log($"Starting {carouselName}...");
+        SceneManager.LoadScene(sceneName);
     }
 
     public void QuitGame()

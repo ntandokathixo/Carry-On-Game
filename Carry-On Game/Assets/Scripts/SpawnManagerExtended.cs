@@ -11,11 +11,11 @@ public class SpawnManagerExtended : MonoBehaviour
     public Transform spawnPoint;
     public Transform firstJunction;
     public float startDelay = 3f;
-    public float baseSpawnInterval = 5.5f;     // Start at 5.5 seconds
-    public float minSpawnInterval = 3.2f;       // Fastest is 3.2 seconds (challenging but fair)
+    public float baseSpawnInterval = 5.5f;
+    public float minSpawnInterval = 3.2f;
     public float minDistanceFromSpawn = 1.5f;
     public int maxBagsPerColour = 3;
-    public int pointsPerDifficultyIncrease = 7;  // Every 7 points difficulty increases
+    public int pointsPerDifficultyIncrease = 7;
 
     private Dictionary<LuggageColour, int> activeBagCount = new Dictionary<LuggageColour, int>();
     private float currentSpawnInterval;
@@ -23,14 +23,14 @@ public class SpawnManagerExtended : MonoBehaviour
     private GameManager gameManager;
     private float lastSpawnTime = 0f;
     private int lastDifficultyScore = 0;
-    private int totalBagsSpawned = 0;
+    private int totalBagsSpawned = 0;  // Only declared once
 
     void Start()
     {
         currentSpawnInterval = baseSpawnInterval;
         gameManager = FindObjectOfType<GameManager>();
 
-        // Initialize bag counts
+        // Initialize bag counts for solid bags
         foreach (GameObject prefab in solidBagPrefabs)
         {
             BagColourExtended bagColour = prefab.GetComponent<BagColourExtended>();
@@ -40,6 +40,7 @@ public class SpawnManagerExtended : MonoBehaviour
             }
         }
 
+        // Initialize bag counts for polka dot bags
         foreach (GameObject prefab in polkaDotBagPrefabs)
         {
             BagColourExtended bagColour = prefab.GetComponent<BagColourExtended>();
@@ -172,6 +173,7 @@ public class SpawnManagerExtended : MonoBehaviour
 
         lastSpawnTime = Time.time;
         totalBagsSpawned++;
+        Debug.Log($"Total bags spawned: {totalBagsSpawned}");
     }
 
     public void OnBagDestroyed(LuggageColour colour)
@@ -203,12 +205,16 @@ public class SpawnManagerExtended : MonoBehaviour
 
         if (currentStep > lastStep)
         {
-            // Decrease by 0.12 seconds per step (noticeable but fair)
             float newInterval = baseSpawnInterval - (currentStep * 0.12f);
             currentSpawnInterval = Mathf.Max(minSpawnInterval, newInterval);
             lastDifficultyScore = newScore;
 
             Debug.Log($"Score {newScore}: Spawn interval now {currentSpawnInterval:F2}s");
         }
+    }
+
+    public int GetTotalBagsSpawned()
+    {
+        return totalBagsSpawned;
     }
 }

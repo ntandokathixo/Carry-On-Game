@@ -2,14 +2,13 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 
-public class FeedbackMessage : MonoBehaviour
+public class CenterMessage : MonoBehaviour
 {
-    public static FeedbackMessage Instance;
+    public static CenterMessage Instance;
 
     [Header("Message Settings")]
     public GameObject messagePrefab;
-    public float messageDuration = 1.2f;
-    public float floatUpSpeed = 30f;
+    public float messageDuration = 2.5f; 
 
     private Canvas canvas;
 
@@ -51,6 +50,10 @@ public class FeedbackMessage : MonoBehaviour
         {
             tmp.text = text;
             tmp.color = color;
+            tmp.fontSize = 36;  // Smaller font
+            tmp.fontStyle = FontStyles.Bold;
+            tmp.alignment = TextAlignmentOptions.Center;
+
             StartCoroutine(AnimateMessage(msgObj, tmp));
         }
         else
@@ -66,20 +69,17 @@ public class FeedbackMessage : MonoBehaviour
         float elapsedTime = 0;
         Color startColor = tmp.color;
 
-        // Random slight horizontal offset
-        float xOffset = Random.Range(-50f, 50f);
-        rect.anchoredPosition = new Vector2(startPos.x + xOffset, startPos.y);
+        // Center on screen
+        rect.anchoredPosition = new Vector2(0, 0);
 
         while (elapsedTime < messageDuration)
         {
             elapsedTime += Time.deltaTime;
 
-            // Float upward
             float t = elapsedTime / messageDuration;
-            float yOffset = floatUpSpeed * t;
-            rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, startPos.y + yOffset);
+            float yOffset = 30f * t;  // Slower float up
+            rect.anchoredPosition = new Vector2(0, startPos.y + yOffset);
 
-            // Fade out
             Color newColor = startColor;
             newColor.a = Mathf.Lerp(1f, 0f, t);
             tmp.color = newColor;
